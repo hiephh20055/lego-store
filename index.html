@@ -53,7 +53,7 @@
             <nav class="flex gap-7">
                 <a href="products.html" class="nav-link">Shop</a>
                 <a href="about.html" class="nav-link">Discover</a>
-                <a href="#" class="nav-link">Help</a>
+                <a href="help.html" class="nav-link">Help</a>
             </nav>
         </div>
         <div class="flex items-center gap-5">
@@ -65,7 +65,7 @@
                 <button class="btn-icon">♡</button>
                 <a href="cart.html" class="relative">
                     <button class="btn-icon">🛒</button>
-                    <span class="badge cart-count">0</span>
+                    <span id="cartCount" class="badge">0</span>
                 </a>
                 <a href="login.html" id="accountLink">
                     <button id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
@@ -144,7 +144,7 @@
                     <h3 class="font-bold text-sm mb-4 flex-grow">Eevee</h3>
                     <p class="font-black text-lg mb-4">$39.99</p>
                     <div class="flex space-x-2">
-                        <button onclick="addToCart({ id: 'eevee', name: 'Eevee', price: 39.99, img: 'https://m.media-amazon.com/images/I/71sNpFP1UL.jpg', qty: 1 })" class="flex-grow bg-[#FD5F00] text-white text-xs font-black py-2.5 rounded-md uppercase active-press">Add to Bag</button>
+                        <button onclick="addToCart('Eevee', 39.99)" class="flex-grow bg-[#FD5F00] text-white text-xs font-black py-2.5 rounded-md uppercase active-press">Add to Bag</button>
                         <button onclick="this.classList.toggle('is-active')" class="wishlist-btn p-2 border border-gray-300 rounded-md">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-width="2"></path></svg>
                         </button>
@@ -218,11 +218,26 @@
             accountIcon.classList.remove("bg-gray-600");
             accountIcon.classList.add("bg-legoYellow");
         }
-
-        if (typeof updateCartBadge === "function") {
-            updateCartBadge();
-        }
+        updateCartBadge();
     });
+
+    function addToCart(name, price, img) {
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        // Thêm ID và ảnh để file cart.html hiển thị được
+        cart.push({ id: Date.now(), name: name, price: price, qty: 1, img: img });
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartBadge();
+        alert("Đã thêm " + name + " vào giỏ!");
+    }
+
+    function updateCartBadge() {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const badge = document.getElementById("cartCount");
+        if(badge) {
+            let totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+            badge.innerText = totalQty;
+        }
+    }
     </script>
 </body>
 </html>

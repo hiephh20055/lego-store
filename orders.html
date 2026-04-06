@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đơn hàng của tôi — PLAYARENA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>body { font-family: "Spline Sans", sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="index.html" class="font-black text-lg text-slate-900">PLAYARENA</a>
+      <div class="flex gap-4 text-sm font-semibold">
+        <a href="profile.html" class="text-slate-600 hover:text-orange-500">Tài khoản</a>
+        <a href="cart.html" class="text-slate-600 hover:text-orange-500">Giỏ hàng</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-black mb-2">Đơn hàng của tôi</h1>
+    <p class="text-sm text-slate-500 mb-6">Nhấn vào mã đơn để xem chi tiết sản phẩm và tổng tiền.</p>
+
+    <div id="loading" class="text-slate-500 text-sm">Đang tải...</div>
+    <div id="empty" class="hidden bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
+      <p class="text-slate-600 mb-4">Bạn chưa có đơn hàng nào.</p>
+      <a href="products.html" class="inline-block bg-orange-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-orange-600">Mua sắm</a>
+    </div>
+    <div id="tableWrap" class="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <table class="w-full text-sm text-left">
+        <thead class="text-xs uppercase text-slate-500 bg-slate-50">
+          <tr>
+            <th class="px-4 py-3">Mã đơn</th>
+            <th class="px-4 py-3">Ngày</th>
+            <th class="px-4 py-3">Trạng thái</th>
+            <th class="px-4 py-3 text-right">Tổng</th>
+          </tr>
+        </thead>
+        <tbody id="orderRows" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:3000";
+
+    function authHeaders() {
+      return {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      if (!localStorage.getItem("token")) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(API_BASE + "/orders", { headers: authHeaders() });
+        const list = await res.json();
+        document.getElementById("loading").classList.add("hidden");
+
+        if (!res.ok) {
+          document.getElementById("empty").classList.remove("hidden");
+          document.getElementById("empty").querySelector("p").textContent =
+            list.message || "Không tải được đơn hàng.";
+          return;
+        }
+
+        if (!list.length) {
+          document.getElementById("empty").classList.remove("hidden");
+          return;
+        }
+
+        document.getElementById("tableWrap").classList.remove("hidden");
+        const tbody = document.getElementById("orderRows");
+        list.forEach(function (o) {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50";
+          const dateStr = o.created_at
+            ? new Date(o.created_at.replace(" ", "T")).toLocaleString("vi-VN")
+            : "—";
+          tr.innerHTML =
+            '<td class="px-4 py-3">' +
+            '<a href="order-detail.html?id=' +
+            o.id +
+            '" class="font-bold text-orange-600 hover:underline">#' +
+            o.id +
+            "</a></td>" +
+            '<td class="px-4 py-3 text-slate-600">' +
+            dateStr +
+            "</td>" +
+            '<td class="px-4 py-3">' +
+            (o.status || "—") +
+            "</td>" +
+            '<td class="px-4 py-3 text-right font-semibold">$' +
+            Number(o.total).toFixed(2) +
+            "</td>";
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("empty").classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,54 +1,60 @@
-/* LOAD CART */
+/**
+ * Giỏ hàng — một nguồn dữ liệu trong closure, tránh trùng `let cart` với script khác trên cùng trang.
+ * API: window.addToCart, window.updateCartBadge, window.reloadCartFromStorage
+ */
+(function () {
+  "use strict";
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  var cart = JSON.parse(localStorage.getItem("cart") || "[]") || [];
 
-const cartBadge = document.querySelector(".cart-count");
+  function persist() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }
 
+  function reloadFromStorage() {
+    cart = JSON.parse(localStorage.getItem("cart") || "[]") || [];
+  }
 
-/* UPDATE BADGE */
+  window.reloadCartFromStorage = function () {
+    reloadFromStorage();
+  };
 
-function updateCartBadge(){
+  window.addToCart = function (product) {
+    if (!product || product.id === undefined || product.id === null) return;
+    var qty = Number(product.qty) > 0 ? Number(product.qty) : 1;
+    var exist = cart.find(function (p) {
+      return String(p.id) === String(product.id);
+    });
+    if (exist) {
+      exist.qty += qty;
+    } else {
+      cart.push({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        img: product.img,
+        qty: qty,
+      });
+    }
+    persist();
+    window.updateCartBadge();
+  };
 
-if(!cartBadge) return;
+  window.updateCartBadge = function () {
+    reloadFromStorage();
+    var cartBadge = document.querySelector(".cart-count");
+    if (!cartBadge) return;
+    var total = cart.reduce(function (sum, item) {
+      return sum + (item.qty || 1);
+    }, 0);
+    cartBadge.innerText = total;
+  };
 
-const total = cart.reduce((sum,item)=>sum+item.qty,0);
-
-cartBadge.innerText = total;
-
-}
-
-
-/* SAVE CART */
-
-function saveCart(){
-
-localStorage.setItem("cart", JSON.stringify(cart));
-
-}
-
-
-/* ADD TO CART */
-
-function addToCart(product){
-
-const exist = cart.find(p => p.id === product.id);
-
-if(exist){
-
-exist.qty++;
-
-}else{
-
-cart.push(product);
-
-}
-
-saveCart();
-updateCartBadge();
-
-}
-
-
-/* LOAD BADGE ON PAGE */
-
-updateCartBadge();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      window.updateCartBadge();
+    });
+  } else {
+    window.updateCartBadge();
+  }
+})();

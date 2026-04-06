@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi tiết đơn hàng — PLAYARENA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>body { font-family: "Spline Sans", sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="orders.html" class="text-sm font-semibold text-orange-600 hover:underline">← Danh sách đơn</a>
+      <a href="index.html" class="font-black text-lg">PLAYARENA</a>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <div id="loading" class="text-slate-500">Đang tải...</div>
+    <div id="error" class="hidden text-red-600 text-sm"></div>
+
+    <div id="content" class="hidden space-y-6">
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Đơn hàng</p>
+        <h1 class="text-2xl font-black" id="orderTitle">#—</h1>
+        <p class="text-sm text-slate-600 mt-1" id="orderMeta"></p>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <h2 class="text-sm font-bold text-slate-700 px-4 py-3 bg-slate-50 border-b border-slate-100">Sản phẩm</h2>
+        <div id="itemList" class="divide-y divide-slate-100"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-600">Tạm tính</span>
+          <span id="sumSub" class="font-semibold">$0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Thuế (ước tính)</span>
+          <span id="sumTax" class="font-semibold">$0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Phí vận chuyển</span>
+          <span id="sumShip" class="font-semibold">$0.00</span>
+        </div>
+        <hr class="border-slate-200" />
+        <div class="flex justify-between text-base">
+          <span class="font-bold">Tổng cộng</span>
+          <span id="sumTotal" class="font-black text-orange-600">$0.00</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:3000";
+
+    function authHeaders() {
+      return {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      if (!localStorage.getItem("token")) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get("id");
+      if (!id) {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("error").textContent = "Thiếu mã đơn hàng.";
+        document.getElementById("error").classList.remove("hidden");
+        return;
+      }
+
+      try {
+        var res = await fetch(API_BASE + "/orders/" + id, { headers: authHeaders() });
+        var data = await res.json();
+        document.getElementById("loading").classList.add("hidden");
+
+        if (!res.ok) {
+          document.getElementById("error").textContent = data.message || "Không tải được đơn hàng.";
+          document.getElementById("error").classList.remove("hidden");
+          return;
+        }
+
+        var o = data.order;
+        var items = data.items || [];
+        document.getElementById("content").classList.remove("hidden");
+
+        document.getElementById("orderTitle").textContent = "Đơn #" + o.id;
+        var meta =
+          "Ngày đặt: " +
+          (o.created_at
+            ? new Date(o.created_at.replace(" ", "T")).toLocaleString("vi-VN")
+            : "—") +
+          " · Trạng thái: " +
+          (o.status || "—");
+        if (data.userEmail && localStorage.getItem("role") === "admin") {
+          meta += " · Khách: " + data.userEmail;
+        }
+        document.getElementById("orderMeta").textContent = meta;
+
+        document.getElementById("sumSub").textContent = "$" + Number(o.subtotal).toFixed(2);
+        document.getElementById("sumTax").textContent = "$" + Number(o.tax).toFixed(2);
+        document.getElementById("sumShip").textContent =
+          Number(o.shipping) === 0 ? "FREE" : "$" + Number(o.shipping).toFixed(2);
+        document.getElementById("sumTotal").textContent = "$" + Number(o.total).toFixed(2);
+
+        var list = document.getElementById("itemList");
+        items.forEach(function (it) {
+          var img =
+            it.image_url ||
+            "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
+          var row = document.createElement("div");
+          row.className = "flex gap-4 p-4";
+          row.innerHTML =
+            '<img src="' +
+            img +
+            '" alt="" class="w-20 h-20 object-cover rounded-lg bg-slate-100 shrink-0" />' +
+            '<div class="flex-1 min-w-0">' +
+            '<p class="font-bold text-slate-900">' +
+            (it.name || "") +
+            "</p>" +
+            '<p class="text-sm text-slate-500">SL: ' +
+            it.qty +
+            " × $" +
+            Number(it.price).toFixed(2) +
+            "</p>" +
+            "</div>" +
+            '<div class="font-bold text-slate-900">$' +
+            (Number(it.price) * Number(it.qty)).toFixed(2) +
+            "</div>";
+          list.appendChild(row);
+        });
+      } catch (e) {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("error").textContent = "Lỗi kết nối server.";
+        document.getElementById("error").classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

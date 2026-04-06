@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — PLAYARENA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: "Spline Sans", sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center font-black text-white">B</div>
+        <div>
+          <p class="font-black text-lg tracking-tight">PLAYARENA</p>
+          <p class="text-xs text-slate-500">Bảng điều khiển quản trị</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="adminEmail" class="text-sm text-slate-400 max-w-[200px] truncate"></span>
+        <a href="index.html" class="text-sm font-semibold text-orange-400 hover:text-orange-300">Về cửa hàng</a>
+        <button type="button" id="btnLogout" class="text-sm font-semibold bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700">
+          Đăng xuất
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+    <p id="pageError" class="hidden text-center text-red-400 text-sm"></p>
+
+    <!-- Sản phẩm -->
+    <section class="grid lg:grid-cols-5 gap-8">
+      <div class="lg:col-span-2 space-y-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span class="w-1 h-6 bg-orange-500 rounded"></span>
+          <span id="formTitle">Thêm sản phẩm</span>
+        </h2>
+        <form id="productForm" class="space-y-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-5">
+          <input type="hidden" id="editId" value="" />
+          <div>
+            <label class="text-xs font-semibold text-slate-400">Tên</label>
+            <input id="fName" required class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500/40 outline-none" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-400">Giá (USD)</label>
+            <input id="fPrice" type="number" step="0.01" min="0" required class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500/40 outline-none" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-400">URL ảnh</label>
+            <input id="fImage" type="url" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500/40 outline-none" placeholder="https://..." />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-slate-400">Tuổi tối thiểu</label>
+              <input id="fAge" type="number" min="0" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-400">Số mảnh</label>
+              <input id="fPieces" type="number" min="0" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-400">Chủ đề</label>
+            <input id="fTheme" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div class="flex gap-2 pt-2">
+            <button type="submit" id="btnSubmitProduct" class="flex-1 bg-orange-500 hover:bg-orange-600 font-bold py-2.5 rounded-lg text-sm">
+              Lưu sản phẩm
+            </button>
+            <button type="button" id="btnCancelEdit" class="hidden px-4 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 hover:bg-slate-700">
+              Hủy sửa
+            </button>
+          </div>
+          <p id="formMessage" class="text-sm min-h-[1.25rem] text-slate-400"></p>
+        </form>
+      </div>
+
+      <div class="lg:col-span-3">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <span class="w-1 h-6 bg-orange-500 rounded"></span>
+          Danh sách sản phẩm
+        </h2>
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/30">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-slate-500 uppercase bg-slate-900/80">
+              <tr>
+                <th class="px-4 py-3">ID</th>
+                <th class="px-4 py-3">Tên</th>
+                <th class="px-4 py-3">Giá</th>
+                <th class="px-4 py-3">Theme</th>
+                <th class="px-4 py-3 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="productRows" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+        <p id="productsEmpty" class="hidden text-slate-500 text-sm mt-4">Chưa có sản phẩm.</p>
+      </div>
+    </section>
+
+    <!-- Người dùng -->
+    <section>
+      <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <span class="w-1 h-6 bg-orange-500 rounded"></span>
+        Người dùng
+      </h2>
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/30">
+        <table class="w-full text-sm text-left">
+          <thead class="text-xs text-slate-500 uppercase bg-slate-900/80">
+            <tr>
+              <th class="px-4 py-3">ID</th>
+              <th class="px-4 py-3">Email</th>
+              <th class="px-4 py-3">Vai trò</th>
+            </tr>
+          </thead>
+          <tbody id="userRows" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Đơn hàng -->
+    <section>
+      <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <span class="w-1 h-6 bg-orange-500 rounded"></span>
+        Đơn hàng (toàn hệ thống)
+      </h2>
+      <p class="text-sm text-slate-500 mb-3">Nhấn mã đơn để xem chi tiết (giống khách).</p>
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/30">
+        <table class="w-full text-sm text-left">
+          <thead class="text-xs text-slate-500 uppercase bg-slate-900/80">
+            <tr>
+              <th class="px-4 py-3">Mã</th>
+              <th class="px-4 py-3">Email KH</th>
+              <th class="px-4 py-3">Ngày</th>
+              <th class="px-4 py-3">TT</th>
+              <th class="px-4 py-3 text-right">Tổng</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrderRows" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+      <p id="adminOrdersEmpty" class="hidden text-slate-500 text-sm mt-3">Chưa có đơn hàng.</p>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:3000";
+
+    function authHeaders() {
+      const t = localStorage.getItem("token");
+      return {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + t,
+      };
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userEmail");
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("btnLogout").addEventListener("click", logout);
+
+    async function ensureAdmin() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "login.html";
+        return false;
+      }
+      try {
+        const res = await fetch(API_BASE + "/profile", { headers: authHeaders() });
+        const data = await res.json();
+        if (!res.ok || data.role !== "admin") {
+          alert("Bạn không có quyền truy cập trang quản trị.");
+          window.location.href = "index.html";
+          return false;
+        }
+        if (data.email) {
+          document.getElementById("adminEmail").textContent = data.email;
+        }
+        return true;
+      } catch (e) {
+        window.location.href = "login.html";
+        return false;
+      }
+    }
+
+    async function loadProducts() {
+      const tbody = document.getElementById("productRows");
+      const empty = document.getElementById("productsEmpty");
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">Đang tải...</td></tr>';
+
+      try {
+        const res = await fetch(API_BASE + "/products");
+        const list = await res.json();
+        tbody.innerHTML = "";
+        if (!list.length) {
+          empty.classList.remove("hidden");
+          return;
+        }
+        empty.classList.add("hidden");
+        list.forEach(function (p) {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/50";
+          tr.innerHTML =
+            '<td class="px-4 py-3 text-slate-400">' +
+            p.id +
+            "</td>" +
+            '<td class="px-4 py-3 font-medium text-white max-w-[200px] truncate">' +
+            (p.name || "") +
+            "</td>" +
+            '<td class="px-4 py-3">$' +
+            Number(p.price).toFixed(2) +
+            "</td>" +
+            '<td class="px-4 py-3 text-slate-400">' +
+            (p.theme || "—") +
+            "</td>" +
+            '<td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">' +
+            '<button type="button" class="text-orange-400 hover:underline btn-edit" data-id="' +
+            p.id +
+            '">Sửa</button>' +
+            '<button type="button" class="text-red-400 hover:underline btn-del" data-id="' +
+            p.id +
+            '">Xóa</button>' +
+            "</td>";
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll(".btn-edit").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            const id = btn.getAttribute("data-id");
+            const row = list.find(function (x) {
+              return String(x.id) === String(id);
+            });
+            if (!row) return;
+            document.getElementById("editId").value = row.id;
+            document.getElementById("fName").value = row.name || "";
+            document.getElementById("fPrice").value = row.price;
+            document.getElementById("fImage").value = row.image_url || "";
+            document.getElementById("fAge").value = row.age_min != null ? row.age_min : "";
+            document.getElementById("fPieces").value = row.pieces != null ? row.pieces : "";
+            document.getElementById("fTheme").value = row.theme || "";
+            document.getElementById("formTitle").textContent = "Sửa sản phẩm #" + row.id;
+            document.getElementById("btnCancelEdit").classList.remove("hidden");
+            document.getElementById("btnSubmitProduct").textContent = "Cập nhật";
+            document.getElementById("formMessage").textContent = "";
+          });
+        });
+
+        tbody.querySelectorAll(".btn-del").forEach(function (btn) {
+          btn.addEventListener("click", async function () {
+            if (!confirm("Xóa sản phẩm này?")) return;
+            const id = btn.getAttribute("data-id");
+            try {
+              const res = await fetch(API_BASE + "/admin/products/" + id, {
+                method: "DELETE",
+                headers: authHeaders(),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                alert(data.message || "Lỗi");
+                return;
+              }
+              resetProductForm();
+              loadProducts();
+            } catch (e) {
+              alert("Không kết nối được server.");
+            }
+          });
+        });
+      } catch (e) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="px-4 py-8 text-center text-red-400">Không tải được dữ liệu.</td></tr>';
+      }
+    }
+
+    function resetProductForm() {
+      document.getElementById("editId").value = "";
+      document.getElementById("productForm").reset();
+      document.getElementById("formTitle").textContent = "Thêm sản phẩm";
+      document.getElementById("btnCancelEdit").classList.add("hidden");
+      document.getElementById("btnSubmitProduct").textContent = "Lưu sản phẩm";
+      document.getElementById("formMessage").textContent = "";
+    }
+
+    document.getElementById("btnCancelEdit").addEventListener("click", resetProductForm);
+
+    document.getElementById("productForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const msg = document.getElementById("formMessage");
+      msg.textContent = "";
+
+      const body = {
+        name: document.getElementById("fName").value.trim(),
+        price: document.getElementById("fPrice").value,
+        image_url: document.getElementById("fImage").value.trim(),
+        age_min: document.getElementById("fAge").value,
+        pieces: document.getElementById("fPieces").value,
+        theme: document.getElementById("fTheme").value.trim(),
+      };
+
+      const editId = document.getElementById("editId").value;
+      const url =
+        editId !== ""
+          ? API_BASE + "/admin/products/" + editId
+          : API_BASE + "/admin/products";
+      const method = editId !== "" ? "PUT" : "POST";
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: authHeaders(),
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msg.textContent = data.message || "Có lỗi xảy ra";
+          msg.classList.add("text-red-400");
+          return;
+        }
+        msg.classList.remove("text-red-400");
+        msg.textContent = data.message || "Thành công";
+        resetProductForm();
+        loadProducts();
+      } catch (err) {
+        msg.textContent = "Không kết nối được server (đã bật backend chưa?).";
+        msg.classList.add("text-red-400");
+      }
+    });
+
+    async function loadUsers() {
+      const tbody = document.getElementById("userRows");
+      tbody.innerHTML =
+        '<tr><td colspan="3" class="px-4 py-6 text-center text-slate-500">Đang tải...</td></tr>';
+      try {
+        const res = await fetch(API_BASE + "/admin/users", { headers: authHeaders() });
+        const list = await res.json();
+        if (!res.ok) {
+          tbody.innerHTML =
+            '<tr><td colspan="3" class="px-4 py-6 text-center text-red-400">Không tải được danh sách.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = "";
+        list.forEach(function (u) {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/50";
+          tr.innerHTML =
+            '<td class="px-4 py-3 text-slate-400">' +
+            u.id +
+            "</td>" +
+            '<td class="px-4 py-3">' +
+            (u.email || "") +
+            "</td>" +
+            '<td class="px-4 py-3">' +
+            '<select class="role-select bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm" data-id="' +
+            u.id +
+            '">' +
+            '<option value="user"' +
+            (u.role === "user" ? " selected" : "") +
+            ">user</option>" +
+            '<option value="admin"' +
+            (u.role === "admin" ? " selected" : "") +
+            ">admin</option>" +
+            "</select>" +
+            "</td>";
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll(".role-select").forEach(function (sel) {
+          sel.addEventListener("change", async function () {
+            const id = sel.getAttribute("data-id");
+            const role = sel.value;
+            try {
+              const res = await fetch(API_BASE + "/admin/users/" + id + "/role", {
+                method: "PATCH",
+                headers: authHeaders(),
+                body: JSON.stringify({ role: role }),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                alert(data.message || "Lỗi");
+                loadUsers();
+                return;
+              }
+            } catch (e) {
+              alert("Lỗi mạng");
+              loadUsers();
+            }
+          });
+        });
+      } catch (e) {
+        tbody.innerHTML =
+          '<tr><td colspan="3" class="px-4 py-6 text-center text-red-400">Lỗi.</td></tr>';
+      }
+    }
+
+    async function loadAdminOrders() {
+      const tbody = document.getElementById("adminOrderRows");
+      const empty = document.getElementById("adminOrdersEmpty");
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">Đang tải...</td></tr>';
+      try {
+        const res = await fetch(API_BASE + "/admin/orders", { headers: authHeaders() });
+        const list = await res.json();
+        tbody.innerHTML = "";
+        if (!res.ok) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="px-4 py-6 text-center text-red-400">Không tải được.</td></tr>';
+          return;
+        }
+        if (!list.length) {
+          empty.classList.remove("hidden");
+          return;
+        }
+        empty.classList.add("hidden");
+        list.forEach(function (o) {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/50";
+          const d = o.created_at
+            ? new Date(String(o.created_at).replace(" ", "T")).toLocaleString("vi-VN")
+            : "—";
+          tr.innerHTML =
+            '<td class="px-4 py-3">' +
+            '<a href="order-detail.html?id=' +
+            o.id +
+            '" class="text-orange-400 font-bold hover:underline" target="_blank">#' +
+            o.id +
+            "</a></td>" +
+            '<td class="px-4 py-3 text-slate-300 max-w-[180px] truncate">' +
+            (o.user_email || "—") +
+            "</td>" +
+            '<td class="px-4 py-3 text-slate-400 text-xs">' +
+            d +
+            "</td>" +
+            '<td class="px-4 py-3">' +
+            (o.status || "—") +
+            "</td>" +
+            '<td class="px-4 py-3 text-right font-semibold">$' +
+            Number(o.total).toFixed(2) +
+            "</td>";
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="px-4 py-6 text-center text-red-400">Lỗi mạng.</td></tr>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const ok = await ensureAdmin();
+      if (!ok) return;
+      loadProducts();
+      loadUsers();
+      loadAdminOrders();
+    });
+  </script>
+</body>
+</html>

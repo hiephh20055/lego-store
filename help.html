@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Trợ giúp — PLAYARENA</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                legoYellow: '#ffcf00',
+                legoRed: '#d11013',
+                legoOrange: '#fd8024',
+                legoNavy: '#20214b',
+                legoGrey: '#f8f8f8',
+              },
+              fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+            }
+          }
+        }
+    </script>
+    <style>
+        .header { background-color: #ffffff; height: 70px; display: flex; align-items: center; padding: 0 40px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; }
+        .nav-link { text-decoration: none; color: #4b5563; font-weight: 600; font-size: 15px; position: relative; padding: 8px 0; transition: color 0.3s; }
+        .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #1a1a1a; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link-active { color: #1a1a1a; }
+        .nav-link-active::after { width: 100%; }
+        .search-bar { position: relative; background-color: #f3f4f6; border-radius: 8px; padding: 8px 12px 8px 36px; width: 280px; transition: all 0.3s; }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #4b5563; transition: all 0.2s; }
+        .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
+        .badge { position: absolute; top: 4px; right: 4px; background-color: #f39c12; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid white; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+
+    <header class="header">
+        <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-12">
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
+                    <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
+                </a>
+                <nav class="flex gap-7">
+                    <a href="products.html" class="nav-link">Shop</a>
+                    <a href="about.html" class="nav-link">Discover</a>
+                    <a href="help.html" class="nav-link nav-link-active">Help</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-5">
+                <div class="search-bar hidden sm:block">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                    <input type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0" placeholder="Search..." aria-label="Search">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" class="btn-icon" aria-label="Wishlist">♡</button>
+                    <a href="cart.html" class="relative">
+                        <button type="button" class="btn-icon">🛒</button>
+                        <span id="cartCount" class="badge">0</span>
+                    </a>
+                    <a href="login.html" id="accountLink">
+                        <button type="button" id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl mx-auto px-4 py-12 w-full">
+        <p class="text-xs font-semibold text-[#f39c12] uppercase tracking-widest mb-2">Trợ giúp</p>
+        <h1 class="text-3xl md:text-4xl font-black text-gray-900 mb-4">Về PLAYARENA</h1>
+        <p class="text-gray-600 leading-relaxed mb-10">
+            PLAYARENA là website đồ án cửa hàng đồ chơi lắp ráp (LEGO®-style), nơi bạn có thể xem bộ sưu tập,
+            thêm sản phẩm vào giỏ và quản lý tài khoản. Trang được xây dựng với giao diện hiện đại, tối ưu cho cả máy tính và điện thoại.
+        </p>
+
+        <section class="space-y-8">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-900 mb-3">Mua sắm &amp; sản phẩm</h2>
+                <ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+                    <li>Vào <a href="products.html" class="text-[#f39c12] font-semibold hover:underline">Shop</a> để xem toàn bộ sản phẩm được tải từ máy chủ (API).</li>
+                    <li>Bạn có thể sắp xếp theo giá và tìm kiếm theo tên ngay trên trang cửa hàng.</li>
+                    <li>Ảnh và thông tin (độ tuổi, số mảnh, chủ đề) hiển thị theo dữ liệu từ hệ thống.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-900 mb-3">Tài khoản &amp; đăng nhập</h2>
+                <ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+                    <li>Dùng <a href="login.html" class="text-[#f39c12] font-semibold hover:underline">Đăng nhập</a> để tạo tài khoản mới hoặc đăng nhập bằng email và mật khẩu.</li>
+                    <li>Sau khi đăng nhập, biểu tượng tài khoản chuyển màu và bạn có thể mở trang hồ sơ khi đã lưu phiên đăng nhập.</li>
+                    <li>Phiên làm việc sử dụng mã bảo mật (token); hãy đăng xuất nếu dùng chung máy.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-900 mb-3">Giỏ hàng</h2>
+                <ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+                    <li>Sản phẩm thêm từ trang Shop được lưu trong trình duyệt (giỏ hàng cục bộ).</li>
+                    <li>Mở <a href="cart.html" class="text-[#f39c12] font-semibold hover:underline">Giỏ hàng</a> để xem chi tiết, đổi số lượng, xóa mặt hàng và xem tổng tiền (gồm thuế và phí vận chuyển ước tính).</li>
+                    <li>Số trên biểu tượng giỏ hàng cập nhật theo tổng số lượng sản phẩm.</li>
+                </ul>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-900 mb-3">Kỹ thuật &amp; hỗ trợ</h2>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    Nếu trang Shop không tải sản phẩm, hãy kiểm tra máy chủ backend đã được bật (cổng mặc định trong dự án là
+                    <span class="font-mono bg-gray-100 px-1 rounded">localhost:3000</span>) và thử tải lại trang.
+                </p>
+                <p class="text-sm text-gray-500 mt-3">
+                    Đây là phiên bản demo phục vụ học tập; thông tin liên hệ và chính sách có thể được bổ sung trong báo cáo đồ án của bạn.
+                </p>
+            </div>
+        </section>
+
+        <p class="mt-10 text-center">
+            <a href="index.html" class="inline-flex items-center gap-2 text-[#f39c12] font-bold hover:underline">← Về trang chủ</a>
+        </p>
+    </main>
+
+    <footer class="bg-[#0d1425] text-[#a0a7b5] py-10 px-[10%] mt-auto">
+        <div class="max-w-[1440px] mx-auto flex flex-wrap justify-between gap-6 text-sm">
+            <p>© PLAYARENA — Trợ giúp &amp; thông tin website</p>
+            <a href="index.html" class="hover:text-white">Trang chủ</a>
+        </div>
+    </footer>
+
+    <script src="cart-system.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+            const accountLink = document.getElementById("accountLink");
+            const accountIcon = document.getElementById("accountIcon");
+            if (token && accountLink && accountIcon) {
+                accountLink.href = "profile.html";
+                accountIcon.classList.remove("bg-gray-600");
+                accountIcon.classList.add("bg-legoYellow");
+            }
+            if (typeof updateCartBadge === "function") {
+                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                const badge = document.getElementById("cartCount");
+                if (badge) {
+                    const totalQty = cart.reduce(function (sum, item) { return sum + (item.qty || 1); }, 0);
+                    badge.innerText = totalQty;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -98,7 +98,7 @@
         <nav class="flex gap-7">
           <a href="products.html" class="nav-link">Shop</a>
           <a href="about.html" class="nav-link">Discover</a>
-          <a href="#" class="nav-link">Help</a>
+          <a href="help.html" class="nav-link">Help</a>
         </nav>
       </div>
       <div class="flex items-center gap-5">
@@ -107,7 +107,7 @@
           <input id="searchInput" type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0 pl-5" placeholder="Search for sets, themes..." />
         </div>
         <div class="flex gap-2">
-          <button class="btn-icon">♡</button>
+          <a href="cart.html#wishlist-heading" class="btn-icon" title="Yêu thích đã lưu">♡</a>
           <a href="cart.html" class="relative">
             <button class="btn-icon">🛒</button>
             <span class="badge cart-count">0</span>
@@ -169,43 +169,14 @@
     </div>
   </main>
 
+  <script src="wishlist.js"></script>
   <script src="cart-system.js"></script>
   <script>
-  // Static product data for the shop
-  const productsData = [
-    {
-      id: "eevee",
-      name: "Eevee Buildable Figure",
-      price: 39.99,
-      image_url: "https://m.media-amazon.com/images/I/71sNpFP1jUL.jpg",
-      age_min: 18,
-      pieces: 387
-    },
-    {
-      id: "pika-speed-racer",
-      name: "Pikachu Speed Racer",
-      price: 49.99,
-      image_url: "https://www.mykingdom.com.vn/cdn/shop/files/do-choi-lap-rap-sieu-xe-porsche-911-gt3-rs-phien-ban-v29-lego-speed-champions-77239_4.jpg?v=1751622710",
-      age_min: 10,
-      pieces: 450
-    },
-    {
-      id: "city-starter-pack",
-      name: "Brick City Starter Pack",
-      price: 29.99,
-      image_url: "https://i.pinimg.com/736x/7b/fd/82/7bfd82fea485732ded12d4d2c4352857.jpg",
-      age_min: 7,
-      pieces: 300
-    },
-    {
-      id: "space-explorer",
-      name: "Space Explorer Shuttle",
-      price: 59.99,
-      image_url: "https://www.lego.com/cdn/cs/set/assets/blt257b8f4b397247df/31066_alt1.jpg?fit=crop&quality=80&width=800&height=800&dpr=1",
-      age_min: 12,
-      pieces: 650
-    }
-  ];
+  /* Cùng origin khi mở qua http://localhost:3000/... — tránh lỗi fetch/CORS */
+  const API_BASE =
+    window.location.port === "3000" && window.location.protocol === "http:"
+      ? ""
+      : "http://localhost:3000";
 
   document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
@@ -220,12 +191,7 @@
       }
     }
 
-    renderProducts(productsData);
-    const empty = document.getElementById("productsEmpty");
-    if (empty) {
-      empty.classList.toggle("hidden", productsData.length > 0);
-    }
-
+    loadProducts();
     if (typeof updateCartBadge === "function") {
       updateCartBadge();
     }
@@ -236,6 +202,35 @@
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", applySearch);
   });
+
+  let productsData = [];
+
+  async function loadProducts() {
+    const grid = document.getElementById("productsGrid");
+    const empty = document.getElementById("productsEmpty");
+    grid.innerHTML = "<p class='col-span-full text-center text-sm text-slate-500'>Loading products...</p>";
+
+    try {
+      const res = await fetch(API_BASE + "/products");
+      const data = await res.json();
+
+      if (!res.ok) {
+        grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Failed to load products.</p>";
+        return;
+      }
+
+      if (!Array.isArray(data)) {
+        grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Invalid product data from server.</p>";
+        return;
+      }
+
+      productsData = data;
+      renderProducts(productsData);
+      empty.classList.toggle("hidden", data.length > 0);
+    } catch (e) {
+      grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Unable to connect to server.</p>";
+    }
+  }
 
   function renderProducts(list) {
     const grid = document.getElementById("productsGrid");
@@ -255,6 +250,11 @@
 
       card.innerHTML =
         '<div class="relative overflow-hidden aspect-square bg-slate-50">' +
+        '  <button type="button" class="wishlist-toggle absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-white/95 shadow-md flex items-center justify-center transition-colors" data-pid="' +
+        p.id +
+        '" title="Yêu thích">' +
+        '    <span class="material-symbols-outlined text-[22px] leading-none wishlist-icon">favorite_border</span>' +
+        "  </button>" +
         '  <img class="product-image w-full h-full object-cover transition-transform duration-500" src="' +
         imgUrl +
         '" alt="' +
@@ -281,25 +281,48 @@
         '    <span class="text-xl font-black text-slate-900">$' +
         Number(p.price).toFixed(2) +
         "</span>" +
-        '    <button class="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-sm transition-colors whitespace-nowrap">' +
-        '      <span class="material-symbols-outlined text-lg">Add to Shopping Cart</span>' +
-        "" +
+        '    <button type="button" data-add-cart class="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-sm transition-colors whitespace-nowrap">' +
+        '      <span class="material-symbols-outlined text-lg">add_shopping_cart</span>' +
+        "      Add" +
         "    </button>" +
         "  </div>" +
         "</div>";
 
-      const addBtn = card.querySelector("button");
-      addBtn.addEventListener("click", function () {
-        const productForCart = {
-          id: String(p.id),
+      const addBtn = card.querySelector("[data-add-cart]");
+      if (addBtn) {
+        addBtn.addEventListener("click", function () {
+          const productForCart = {
+            id: String(p.id),
+            name: p.name,
+            price: Number(p.price),
+            img: imgUrl,
+            qty: 1,
+          };
+          if (typeof addToCart === "function") {
+            addToCart(productForCart);
+          }
+        });
+      }
+
+      const wishBtn = card.querySelector(".wishlist-toggle");
+      const wishIcon = wishBtn.querySelector(".wishlist-icon");
+      function syncWishlistUi() {
+        const on = typeof isWishlisted === "function" && isWishlisted(p.id);
+        wishIcon.textContent = on ? "favorite" : "favorite_border";
+        wishBtn.classList.toggle("text-red-500", on);
+        wishBtn.classList.toggle("text-slate-400", !on);
+      }
+      syncWishlistUi();
+      wishBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWishlist({
+          id: p.id,
           name: p.name,
-          price: Number(p.price),
+          price: p.price,
           img: imgUrl,
-          qty: 1,
-        };
-        if (typeof addToCart === "function") {
-          addToCart(productForCart);
-        }
+        });
+        syncWishlistUi();
       });
 
       grid.appendChild(card);
