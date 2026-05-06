@@ -1,277 +1,228 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 <meta charset="UTF-8">
-<title>My Bag</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYARENA | Cart</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-
 <header class="navbar">
-<a href="index.html" class="logo">PLAYARENA</a>
+  <a href="index.html" class="logo">PLAYARENA</a>
+  <nav class="nav-links">
+    <a href="products.html">Shop</a>
+    <a href="about.html">Discover</a>
+    <a href="help.html">Help</a>
+  </nav>
 
-<div class="search">
-<input type="text" placeholder="Search sets, themes, and more">
-</div>
+  <div class="search">
+    <input type="text" placeholder="Search sets, themes, and more">
+  </div>
 
-<div class="icons">
-<a id="accountIcon" href="login.html">👤</a>
-<span>♡</span>
-<a href="cart.html" class="cart-icon">
-🛒
-<span class="cart-count">0</span>
-</a>
-</div>
+  <div class="icons">
+    <a id="accountIcon" href="login.html">👤</a>
+    <span>♡</span>
+    <a href="cart.html" class="cart-icon">
+      🛒
+      <span class="cart-count">0</span>
+    </a>
+  </div>
 </header>
 
+<main class="page-content">
+  <section class="cart-page">
+    <div class="cart-header">
+      <div>
+        <p class="breadcrumb">Home / Cart</p>
+        <h1>Your shopping bag</h1>
+        <p class="cart-copy">Review your selected products, adjust quantities, and complete checkout with confidence.</p>
+      </div>
+      <div class="cart-status">
+        <span>Ready to checkout</span>
+        <strong class="cart-summary">0 items</strong>
+      </div>
+    </div>
 
-<!-- CART PAGE -->
+    <div class="cart-layout">
+      <div class="cart-items"></div>
 
-<section class="cart-page">
+      <aside class="order-summary">
+        <h3>Order Summary</h3>
 
-<h1>My Bag (0)</h1>
+        <div class="summary-row">
+          <span class="subtotal-items">Subtotal (0 items)</span>
+          <span class="subtotal-price">$0.00</span>
+        </div>
 
-<div class="cart-layout">
+        <div class="summary-row">
+          <span>Estimated Shipping</span>
+          <span class="shipping">FREE</span>
+        </div>
 
-<!-- LEFT SIDE -->
+        <div class="summary-row">
+          <span>Estimated Tax</span>
+          <span class="tax">$0.00</span>
+        </div>
 
-<div class="cart-items"></div>
+        <hr>
 
+        <div class="summary-row total">
+          <span>Total</span>
+          <span class="total-price">$0.00</span>
+        </div>
 
+        <button class="checkout">Checkout Securely</button>
+        <button class="paypal">Pay with PayPal</button>
+      </aside>
+    </div>
+  </section>
 
+  <section class="recommended">
+    <h2>Recommended for you</h2>
 
-<!-- RIGHT SIDE -->
+    <div class="product-grid">
+      <div class="product-card">
+        <img src="images/mario.jpg" alt="Mario Kart™ Luigi">
+        <h4>Mario Kart™ Luigi</h4>
+        <p>$179.99</p>
+        <button>Add to Bag</button>
+      </div>
 
-<div class="order-summary">
+      <div class="product-card">
+        <img src="images/zelda.jpg" alt="Zelda Final Battle">
+        <h4>Zelda Final Battle</h4>
+        <p>$159.99</p>
+        <button>Add to Bag</button>
+      </div>
 
-<h3>Order Summary</h3>
-
-<div class="summary-row">
-<span class="subtotal-items">Subtotal (0 items)</span>
-<span class="subtotal-price">$0</span>
-</div>
-
-<div class="summary-row">
-<span>Estimated Shipping</span>
-<span class="shipping">FREE</span>
-</div>
-
-<div class="summary-row">
-<span>Estimated Tax</span>
-<span class="tax">$0</span>
-</div>
-
-<hr>
-
-<div class="summary-row total">
-<span>Total</span>
-<span class="total-price">$0</span>
-</div>
-
-<button class="checkout">Checkout Securely</button>
-
-<button class="paypal">Pay with PayPal</button>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- RECOMMENDED -->
-
-<section class="recommended">
-
-<h2>Recommended For You</h2>
-
-<div class="product-grid">
-
-<div class="product-card">
-<img src="images/mario.jpg">
-<h4>Mario Kart™ Luigi</h4>
-<p>$179.99</p>
-<button>Add to Bag</button>
-</div>
-
-<div class="product-card">
-<img src="images/zelda.jpg">
-<h4>Zelda Final Battle</h4>
-<p>$159.99</p>
-<button>Add to Bag</button>
-</div>
-
-<div class="product-card">
-<img src="images/sunflower.jpg">
-<h4>Sunflower Bouquet</h4>
-<p>$14.99</p>
-<button>Add to Bag</button>
-</div>
-
-</div>
-
-</section>
-
+      <div class="product-card">
+        <img src="images/sunflower.jpg" alt="Sunflower Bouquet">
+        <h4>Sunflower Bouquet</h4>
+        <p>$14.99</p>
+        <button>Add to Bag</button>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer class="footer">
-<p>© PLAYARENA</p>
+  <p>© PLAYARENA</p>
 </footer>
 
+<script src="cart-system.js"></script>
 <script>
-
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-const container = document.querySelector(".cart-items");
+const cartItemsContainer = document.querySelector(".cart-items");
 const totalPrice = document.querySelector(".total-price");
 const subtotalPrice = document.querySelector(".subtotal-price");
 const subtotalItems = document.querySelector(".subtotal-items");
 const cartTitle = document.querySelector(".cart-page h1");
 const cartBadge = document.querySelector(".cart-count");
-
-
-/* RENDER CART */
+const cartSummary = document.querySelector(".cart-summary");
 
 function renderCart() {
-    const cartItemsContainer = document.querySelector(".cart-items");
-    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    
-    if(cart.length === 0) {
-        cartItemsContainer.innerHTML = "<p>Giỏ hàng trống</p>";
-        return;
-    }
+  if (!cartItemsContainer) return;
+  if (cart.length === 0) {
+    cartItemsContainer.innerHTML = `
+      <div class="empty-cart">
+        <p>Giỏ hàng của bạn hiện đang trống.</p>
+        <p>Thêm sản phẩm yêu thích vào giỏ và quay lại tại đây để thanh toán.</p>
+      </div>
+    `;
+    updateTotal();
+    return;
+  }
 
-    cartItemsContainer.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="${item.img || 'images/default.jpg'}" width="80">
-            <div>
-                <h4>${item.name}</h4>
-                <p>$${item.price}</p>
-            </div>
-            <button onclick="removeItem(${item.id})">Xóa</button>
+  cartItemsContainer.innerHTML = cart.map(item => {
+    const quantity = item.qty || 1;
+    return `
+      <article class="cart-item">
+        <img src="${item.img || 'images/default.jpg'}" alt="${item.name}">
+        <div class="item-meta">
+          <h3>${item.name}</h3>
+          <p class="item-price">$${Number(item.price).toFixed(2)}</p>
+          <div class="quantity-controls">
+            <button type="button" onclick="changeQty(${item.id}, -1)">−</button>
+            <span>${quantity}</span>
+            <button type="button" onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
         </div>
-    `).join('');
-    updateTotal(); // Gọi hàm tính tổng tiền của bạn
+        <button class="remove-item" onclick="removeItem(${item.id})">Xóa</button>
+      </article>
+    `;
+  }).join("");
+  updateTotal();
 }
 
+function changeQty(id, delta) {
+  const item = cart.find(p => p.id === id);
+  if (!item) return;
 
-/* CHANGE QTY */
+  item.qty = (item.qty || 1) + delta;
+  if (item.qty <= 0) {
+    cart = cart.filter(p => p.id !== id);
+  }
 
-function changeQty(id,delta){
-
-const item = cart.find(p=>p.id===id);
-
-if(!item) return;
-
-item.qty += delta;
-
-if(item.qty <=0){
-
-cart = cart.filter(p=>p.id!==id);
-
+  saveCart();
+  renderCart();
+  updateCartCount();
 }
 
-saveCart();
-renderCart();
-
+function removeItem(id) {
+  cart = cart.filter(p => p.id !== id);
+  saveCart();
+  renderCart();
+  updateCartCount();
 }
 
-
-/* REMOVE ITEM */
-
-function removeItem(id){
-
-cart = cart.filter(p=>p.id!==id);
-
-saveCart();
-renderCart();
-
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+  if (typeof window.updateCartBadge === "function") {
+    window.updateCartBadge();
+  }
 }
-
-
-/* SAVE */
-
-function saveCart(){
-
-localStorage.setItem("cart",JSON.stringify(cart));
-
-}
-
 
 const TAX_RATE = 0.08;
 const SHIPPING_THRESHOLD = 100;
 const SHIPPING_COST = 10;
 
-function updateTotal(){
+function updateTotal() {
+  let subtotal = 0;
+  let count = 0;
 
-let subtotal = 0;
-let count = 0;
+  cart.forEach(p => {
+    const quantity = p.qty || 1;
+    subtotal += Number(p.price) * quantity;
+    count += quantity;
+  });
 
-cart.forEach(p=>{
-subtotal += p.price * p.qty;
-count += p.qty;
-});
+  const tax = subtotal * TAX_RATE;
+  const shipping = subtotal > SHIPPING_THRESHOLD || count === 0 ? 0 : SHIPPING_COST;
+  const total = subtotal + tax + shipping;
 
-let tax = subtotal * TAX_RATE;
+  subtotalPrice.innerText = "$" + subtotal.toFixed(2);
+  subtotalItems.innerText = "Subtotal (" + count + " items)";
+  document.querySelector(".tax").innerText = "$" + tax.toFixed(2);
+  document.querySelector(".shipping").innerText = shipping === 0 ? "FREE" : "$" + shipping;
+  totalPrice.innerText = "$" + total.toFixed(2);
 
-let shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-
-let total = subtotal + tax + shipping;
-
-/* UPDATE UI */
-
-subtotalPrice.innerText = "$" + subtotal.toFixed(2);
-subtotalItems.innerText = "Subtotal (" + count + " items)";
-
-document.querySelector(".tax").innerText =
-"$" + tax.toFixed(2);
-
-document.querySelector(".shipping").innerText =
-shipping === 0 ? "FREE" : "$" + shipping;
-
-totalPrice.innerText = "$" + total.toFixed(2);
-
-cartTitle.innerText = "My Bag (" + count + ")";
-
+  cartTitle.innerText = "Your shopping bag (" + count + ")";
+  if (cartSummary) cartSummary.innerText = count + " item" + (count !== 1 ? "s" : "");
 }
 
-
-/* CART BADGE */
-
-function updateCartCount(){
-
-const total = cart.reduce((sum,item)=>sum+item.qty,0);
-
-if(cartBadge) cartBadge.innerText = total;
-
+function updateCartCount() {
+  const total = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  if (cartBadge) cartBadge.innerText = total;
 }
-
-
-/* LOAD */
 
 renderCart();
 updateCartCount();
-
 </script>
-
-<script>
-
-const token = localStorage.getItem("token")
-
-if(token){
-
-const icon=document.getElementById("accountIcon")
-
-if(icon){
-
-icon.href="profile.html"
-
-}
-
-}
+</body>
+</html>
 
 </script>
 
