@@ -1,547 +1,325 @@
-const express = require("express")
-const sqlite3 = require("sqlite3").verbose()
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-const cors = require("cors")
-const path = require("path")
+const express = require("express");
+const sqlite3 = require("sqlite3").verbose();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
 
-const app = express()
+const app = express();
 
-const DB_PATH = path.join(__dirname, "users.db")
-const FRONTEND_ROOT = path.join(__dirname, "..")
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "..")));
 
-app.use(cors())
-app.use(express.json())
+const SECRET = "supersecretkey";
+const DEFAULT_ADMIN_EMAIL = "admin@playarena.local";
+const DEFAULT_ADMIN_PASSWORD = "Admin123!";
+const dbPath = path.join(__dirname, "users.db");
+const legacyDbPath = path.join(__dirname, "..", "users.db");
+const db = new sqlite3.Database(dbPath);
+const uploadsDir = path.join(__dirname, "..", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+      const ext = path.extname(file.originalname || "").toLowerCase();
+      cb(null, "set-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + ext);
+    },
+  }),
+  fileFilter: function (req, file, cb) {
+    if (!String(file.mimetype || "").startsWith("image/")) {
+      cb(new Error("Only image uploads are allowed"));
+      return;
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
-/* SERVE FRONTEND — HTML/CSS/JS nằm ở thư mục gốc project (không có backend/public) */
-
-app.use(express.static(FRONTEND_ROOT))
-
-const SECRET = "supersecretkey"
-
-const db = new sqlite3.Database(DB_PATH)
-
-/* CREATE TABLES */
-
-db.run(`
+db.serialize(() => {
+  db.run(`
 CREATE TABLE IF NOT EXISTS users(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-email TEXT UNIQUE,
-password TEXT,
-role TEXT DEFAULT "user"
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE,
+  password TEXT,
+  role TEXT DEFAULT "user"
 )
-`)
-
-db.run(`
+`);
+  db.run(`
 CREATE TABLE IF NOT EXISTS products(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-name TEXT NOT NULL,
-price REAL NOT NULL,
-image_url TEXT,
-age_min INTEGER,
-pieces INTEGER,
-theme TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL,
+  image_url TEXT,
+  age_min INTEGER,
+  pieces INTEGER,
+  theme TEXT,
+  stock INTEGER DEFAULT 100,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
 )
-`)
-
-db.run(`
+`);
+  db.run(`ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 100`, () => {});
+  db.run(`
 CREATE TABLE IF NOT EXISTS orders(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-user_id INTEGER NOT NULL,
-created_at TEXT NOT NULL,
-subtotal REAL NOT NULL,
-tax REAL NOT NULL,
-shipping REAL NOT NULL,
-total REAL NOT NULL,
-status TEXT DEFAULT 'confirmed'
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  created_at TEXT NOT NULL,
+  subtotal REAL NOT NULL,
+  tax REAL NOT NULL,
+  shipping REAL NOT NULL,
+  total REAL NOT NULL,
+  status TEXT DEFAULT 'pending'
 )
-`)
-
-db.run(`
+`);
+  db.run(`
 CREATE TABLE IF NOT EXISTS order_items(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-order_id INTEGER NOT NULL,
-product_id TEXT,
-name TEXT NOT NULL,
-price REAL NOT NULL,
-qty INTEGER NOT NULL,
-image_url TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL,
+  product_id TEXT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL,
+  qty INTEGER NOT NULL,
+  image_url TEXT
 )
-`)
+`);
+});
 
-/* REGISTER */
+function ensureProductsColumns() {
+  db.all("PRAGMA table_info(products)", [], function (err, cols) {
+    if (err || !Array.isArray(cols)) return;
+    const names = cols.map((c) => c.name);
+    if (!names.includes("stock")) {
+      db.run("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 100", () => {});
+    }
+    if (!names.includes("created_at")) {
+      db.run("ALTER TABLE products ADD COLUMN created_at TEXT", () => {});
+    }
+    db.run("UPDATE products SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL", () => {});
+  });
+}
+ensureProductsColumns();
 
-app.post("/register", async (req, res) => {
-  const { email, password } = req.body
+function migrateLegacyDatabaseIfNeeded() {
+  if (!fs.existsSync(legacyDbPath) || legacyDbPath === dbPath) return;
+  db.get("SELECT COUNT(*) AS c FROM products", [], function (err, row) {
+    if (err || !row || Number(row.c) > 0) return;
+    const legacyDb = new sqlite3.Database(legacyDbPath);
+    legacyDb.serialize(() => {
+      legacyDb.all("SELECT * FROM users", [], function (_e1, users) {
+        (users || []).forEach((u) => {
+          db.run(
+            "INSERT OR IGNORE INTO users(id,email,password,role) VALUES(?,?,?,?)",
+            [u.id, u.email, u.password, u.role || "user"]
+          );
+        });
+      });
+      legacyDb.all("SELECT * FROM products", [], function (_e2, products) {
+        (products || []).forEach((p) => {
+          db.run(
+            "INSERT OR IGNORE INTO products(id,name,price,image_url,age_min,pieces,theme,stock,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+            [
+              p.id,
+              p.name,
+              p.price,
+              p.image_url || "",
+              p.age_min || null,
+              p.pieces || null,
+              p.theme || "Classic",
+              Number(p.stock || 0),
+              p.created_at || null,
+            ]
+          );
+        });
+      });
+      legacyDb.all("SELECT * FROM orders", [], function (_e3, orders) {
+        (orders || []).forEach((o) => {
+          db.run(
+            "INSERT OR IGNORE INTO orders(id,user_id,created_at,subtotal,tax,shipping,total,status) VALUES(?,?,?,?,?,?,?,?)",
+            [o.id, o.user_id, o.created_at, o.subtotal, o.tax, o.shipping, o.total, o.status || "pending"]
+          );
+        });
+      });
+      legacyDb.all("SELECT * FROM order_items", [], function (_e4, items) {
+        (items || []).forEach((it) => {
+          db.run(
+            "INSERT OR IGNORE INTO order_items(id,order_id,product_id,name,price,qty,image_url) VALUES(?,?,?,?,?,?,?)",
+            [it.id, it.order_id, it.product_id, it.name, it.price, it.qty, it.image_url || ""]
+          );
+        });
+      });
+    });
+    legacyDb.close();
+  });
+}
+migrateLegacyDatabaseIfNeeded();
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password required" })
-  }
-
-  try {
-    const hash = await bcrypt.hash(password, 10)
-
-    db.run(
-      "INSERT INTO users(email,password,role) VALUES(?,?,?)",
-      [email, hash, "user"],
-      function (err) {
-        if (err) {
-          return res.status(400).json({ message: "User already exists" })
-        }
-
-        res.json({
-          message: "User created",
-          userId: this.lastID,
-        })
+async function ensureDefaultAdmin() {
+  const hash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
+  db.get(
+    "SELECT id FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))",
+    [DEFAULT_ADMIN_EMAIL],
+    function (err, row) {
+      if (err) return;
+      if (row) {
+        db.run("UPDATE users SET password = ?, role = 'admin' WHERE id = ?", [hash, row.id]);
+        return;
       }
-    )
-  } catch (err) {
-    res.status(500).json({ message: "Server error" })
+      db.run("INSERT INTO users(email,password,role) VALUES(?,?,?)", [DEFAULT_ADMIN_EMAIL, hash, "admin"]);
+    }
+  );
+}
+ensureDefaultAdmin();
+
+function auth(req, res, next) {
+  const h = req.headers.authorization || "";
+  if (!h.startsWith("Bearer ")) return res.status(401).json({ message: "No token" });
+  try {
+    req.user = jwt.verify(h.slice(7), SECRET);
+    next();
+  } catch (e) {
+    res.status(401).json({ message: "Invalid token" });
   }
-})
-
-/* LOGIN — JWT chứa role để phân quyền admin */
-
-app.post("/login", (req, res) => {
-  const { email, password } = req.body
-
-  db.get("SELECT * FROM users WHERE email=?", [email], async (err, user) => {
-    if (!user) {
-      return res.status(401).json({ message: "User not found" })
-    }
-
-    const match = await bcrypt.compare(password, user.password)
-
-    if (!match) {
-      return res.status(401).json({ message: "Wrong password" })
-    }
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role || "user",
-      },
-      SECRET,
-      { expiresIn: "1h" }
-    )
-
-    res.json({
-      token: token,
-      role: user.role,
-    })
-  })
-})
-
-/* VERIFY TOKEN */
-
-function verifyToken(req, res, next) {
-  const authHeader = req.headers["authorization"]
-
-  if (!authHeader) {
-    return res.status(403).json({ message: "No token" })
-  }
-
-  const token = authHeader.split(" ")[1]
-
-  jwt.verify(token, SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token" })
-    }
-
-    req.user = user
-    next()
-  })
 }
 
 function requireAdmin(req, res, next) {
-  if (!req.user || req.user.id == null) {
-    return res.status(403).json({ message: "Chỉ dành cho quản trị viên" })
-  }
-  if (req.user.role === "admin") {
-    return next()
-  }
-  /* Token cũ không có role trong JWT — kiểm tra DB */
-  db.get(
-    "SELECT role FROM users WHERE id=?",
-    [req.user.id],
-    (err, row) => {
-      if (err || !row || row.role !== "admin") {
-        return res.status(403).json({ message: "Chỉ dành cho quản trị viên" })
-      }
-      req.user.role = row.role
-      next()
-    }
-  )
+  db.get("SELECT role FROM users WHERE id = ?", [req.user.id], function (err, user) {
+    if (err || !user) return res.status(401).json({ message: "Unauthorized" });
+    if (user.role !== "admin") return res.status(403).json({ message: "Admin only" });
+    next();
+  });
 }
 
-/* PROFILE */
+app.post("/register", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: "Email and password required" });
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    db.run("INSERT INTO users(email,password,role) VALUES(?,?,?)", [email, hash, "user"], function (err) {
+      if (err) return res.status(400).json({ message: "User already exists" });
+      res.json({ message: "User created", userId: this.lastID });
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
-app.get("/profile", verifyToken, (req, res) => {
-  db.get(
-    "SELECT id,email,role FROM users WHERE id=?",
-    [req.user.id],
-    (err, user) => {
-      if (!user) {
-        return res.status(404).json({ message: "User not found" })
-      }
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  db.get("SELECT * FROM users WHERE email=?", [email], async (err, user) => {
+    if (!user) return res.status(401).json({ message: "User not found" });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ message: "Wrong password" });
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: "1h" });
+    res.json({ token, role: user.role });
+  });
+});
 
-      res.json(user)
-    }
-  )
-})
-
-/* PRODUCTS — public */
+app.get("/profile", auth, (req, res) => {
+  db.get("SELECT id, email, role FROM users WHERE id = ?", [req.user.id], function (err, user) {
+    if (err) return res.status(500).json({ message: "Server error" });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  });
+});
 
 app.get("/products", (req, res) => {
-  db.all(
-    "SELECT id,name,price,image_url,age_min,pieces,theme FROM products ORDER BY id DESC",
-    [],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
+  db.all("SELECT * FROM products ORDER BY datetime(created_at) DESC, id DESC", [], function (err, rows) {
+    if (err) return res.status(500).json({ message: "Server error" });
+    res.json(rows || []);
+  });
+});
 
-      res.json(rows)
-    }
-  )
-})
-
-/* Đơn hàng — tính tổng giống giỏ hàng (thuế 8%, ship $10 nếu tạm tính ≤ $100) */
-
-function computeOrderTotals(items) {
-  const TAX_RATE = 0.08
-  const SHIPPING_THRESHOLD = 100
-  const SHIPPING_COST = 10
-  let subtotal = 0
-  if (!Array.isArray(items) || items.length === 0) {
-    return null
-  }
-  for (const i of items) {
-    const q = Math.max(1, parseInt(i.qty, 10) || 1)
-    const p = Number(i.price)
-    if (Number.isNaN(p) || p < 0) {
-      return null
-    }
-    subtotal += p * q
-  }
-  const tax = subtotal * TAX_RATE
-  const shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_COST
-  const total = subtotal + tax + shipping
-  return { subtotal, tax, shipping, total }
-}
-
-app.post("/orders", verifyToken, (req, res) => {
-  const items = req.body.items
-  const totals = computeOrderTotals(items)
-  if (!totals) {
-    return res.status(400).json({ message: "Giỏ hàng không hợp lệ hoặc trống" })
-  }
-
-  const uid = req.user.id
-
+app.post("/admin/products", auth, requireAdmin, upload.single("image"), (req, res) => {
+  const { name, price, age_min, pieces, stock } = req.body;
+  const imageUrl = req.file ? "/uploads/" + req.file.filename : "";
+  if (!name || price == null) return res.status(400).json({ message: "Missing required fields" });
   db.run(
-    `INSERT INTO orders(user_id, created_at, subtotal, tax, shipping, total, status) VALUES (?, datetime('now'), ?, ?, ?, ?, ?)`,
-    [
-      uid,
-      totals.subtotal,
-      totals.tax,
-      totals.shipping,
-      totals.total,
-      "confirmed",
-    ],
+    "INSERT INTO products(name,price,image_url,age_min,pieces,theme,stock,created_at) VALUES(?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+    [name, Number(price), imageUrl, age_min || null, pieces || null, "Classic", Number(stock || 0)],
     function (err) {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
+      if (err) return res.status(500).json({ message: "Cannot create product" });
+      res.json({ message: "Created", id: this.lastID });
+    }
+  );
+});
+
+app.put("/admin/products/:id", auth, requireAdmin, upload.single("image"), (req, res) => {
+  const { name, price, age_min, pieces, stock } = req.body;
+  db.get("SELECT image_url FROM products WHERE id = ?", [req.params.id], function (err, row) {
+    if (err || !row) return res.status(404).json({ message: "Product not found" });
+    const nextImage = req.file ? "/uploads/" + req.file.filename : row.image_url || "";
+    db.run(
+      "UPDATE products SET name=?, price=?, image_url=?, age_min=?, pieces=?, stock=? WHERE id=?",
+      [name, Number(price), nextImage, age_min || null, pieces || null, Number(stock || 0), req.params.id],
+      function (updateErr) {
+        if (updateErr) return res.status(500).json({ message: "Cannot update product" });
+        res.json({ message: "Updated" });
       }
-      const orderId = this.lastID
-      let pending = items.length
-      if (pending === 0) {
-        return res.status(201).json({ message: "Đặt hàng thành công", orderId })
-      }
-      items.forEach(function (item) {
-        const qty = Math.max(1, parseInt(item.qty, 10) || 1)
-        db.run(
-          `INSERT INTO order_items(order_id, product_id, name, price, qty, image_url) VALUES (?,?,?,?,?,?)`,
-          [
-            orderId,
-            item.id != null ? String(item.id) : null,
-            String(item.name || "").slice(0, 500),
-            Number(item.price),
-            qty,
-            item.img || item.image_url || null,
-          ],
-          function () {
-            pending--
-            if (pending === 0) {
-              res.status(201).json({ message: "Đặt hàng thành công", orderId })
-            }
-          }
-        )
-      })
-    }
-  )
-})
+    );
+  });
+});
 
-app.get("/orders", verifyToken, (req, res) => {
-  db.all(
-    `SELECT id, created_at, subtotal, tax, shipping, total, status FROM orders WHERE user_id = ? ORDER BY id DESC`,
-    [req.user.id],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      res.json(rows)
-    }
-  )
-})
+app.delete("/admin/products/:id", auth, requireAdmin, (req, res) => {
+  db.run("DELETE FROM products WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ message: "Cannot delete product" });
+    res.json({ message: "Deleted" });
+  });
+});
 
-app.get("/orders/:id", verifyToken, (req, res) => {
-  const oid = req.params.id
+app.get("/admin/users", auth, requireAdmin, (req, res) => {
+  db.all("SELECT id, email, role FROM users ORDER BY id DESC", [], function (err, rows) {
+    if (err) return res.status(500).json({ message: "Cannot load users" });
+    res.json(rows || []);
+  });
+});
 
-  db.get("SELECT * FROM orders WHERE id=?", [oid], (err, order) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error" })
-    }
-    if (!order) {
-      return res.status(404).json({ message: "Không tìm thấy đơn hàng" })
-    }
+app.patch("/admin/users/:id/role", auth, requireAdmin, (req, res) => {
+  const { role } = req.body;
+  if (!["user", "admin"].includes(role)) return res.status(400).json({ message: "Invalid role" });
+  db.run("UPDATE users SET role = ? WHERE id = ?", [role, req.params.id], function (err) {
+    if (err) return res.status(500).json({ message: "Cannot update role" });
+    res.json({ message: "Role updated" });
+  });
+});
 
-    function sendDetail() {
-      db.all(
-        "SELECT * FROM order_items WHERE order_id=? ORDER BY id",
-        [oid],
-        (e3, items) => {
-          if (e3) {
-            return res.status(500).json({ message: "Database error" })
-          }
-          db.get("SELECT email FROM users WHERE id=?", [order.user_id], (e4, urow) => {
-            res.json({
-              order: order,
-              items: items,
-              userEmail: urow ? urow.email : null,
-            })
-          })
-        }
-      )
-    }
+app.get("/admin/orders", auth, requireAdmin, (req, res) => {
+  const sql =
+    "SELECT o.id, o.created_at, o.status, o.total, u.email as user_email FROM orders o LEFT JOIN users u ON u.id = o.user_id ORDER BY o.id DESC";
+  db.all(sql, [], function (err, rows) {
+    if (err) return res.status(500).json({ message: "Cannot load orders" });
+    res.json(rows || []);
+  });
+});
 
-    if (Number(order.user_id) === Number(req.user.id)) {
-      return sendDetail()
-    }
+app.patch("/admin/orders/:id/status", auth, requireAdmin, (req, res) => {
+  const { status } = req.body;
+  const allow = ["pending", "processing", "shipped", "completed", "cancelled", "confirmed"];
+  if (!allow.includes(status)) return res.status(400).json({ message: "Invalid status" });
+  db.run("UPDATE orders SET status = ? WHERE id = ?", [status, req.params.id], function (err) {
+    if (err) return res.status(500).json({ message: "Cannot update status" });
+    res.json({ message: "Status updated" });
+  });
+});
 
-    if (req.user.role === "admin") {
-      return sendDetail()
-    }
-
-    db.get("SELECT role FROM users WHERE id=?", [req.user.id], (e2, r2) => {
-      if (!e2 && r2 && r2.role === "admin") {
-        return sendDetail()
-      }
-      return res.status(403).json({ message: "Không có quyền xem đơn này" })
-    })
-  })
-})
-
-app.get("/admin/orders", verifyToken, requireAdmin, (req, res) => {
-  db.all(
-    `SELECT o.id, o.user_id, o.created_at, o.total, o.status, u.email AS user_email
-     FROM orders o
-     LEFT JOIN users u ON u.id = o.user_id
-     ORDER BY o.id DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      res.json(rows)
-    }
-  )
-})
-
-/* ADMIN — sản phẩm */
-
-app.post("/admin/products", verifyToken, requireAdmin, (req, res) => {
-  const { name, price, image_url, age_min, pieces, theme } = req.body
-
-  if (!name || price === undefined || price === null || price === "") {
-    return res.status(400).json({ message: "Cần có tên và giá sản phẩm" })
+app.use((err, req, res, next) => {
+  if (!err) return next();
+  if (err.message && err.message.includes("Only image uploads are allowed")) {
+    return res.status(400).json({ message: "Only image files are accepted" });
   }
-
-  const p = Number(price)
-  if (Number.isNaN(p) || p < 0) {
-    return res.status(400).json({ message: "Giá không hợp lệ" })
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ message: "Image must be <= 5MB" });
   }
+  return res.status(500).json({ message: "Upload failed" });
+});
 
-  db.run(
-    "INSERT INTO products(name,price,image_url,age_min,pieces,theme) VALUES(?,?,?,?,?,?)",
-    [
-      String(name).trim(),
-      p,
-      image_url ? String(image_url).trim() : null,
-      age_min !== undefined && age_min !== "" && age_min !== null
-        ? parseInt(age_min, 10)
-        : null,
-      pieces !== undefined && pieces !== "" && pieces !== null
-        ? parseInt(pieces, 10)
-        : null,
-      theme ? String(theme).trim() : null,
-    ],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      res.status(201).json({ message: "Đã tạo sản phẩm", id: this.lastID })
-    }
-  )
-})
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
-app.put("/admin/products/:id", verifyToken, requireAdmin, (req, res) => {
-  const { name, price, image_url, age_min, pieces, theme } = req.body
-  const id = req.params.id
-
-  if (!name || price === undefined || price === null || price === "") {
-    return res.status(400).json({ message: "Cần có tên và giá sản phẩm" })
-  }
-
-  const p = Number(price)
-  if (Number.isNaN(p) || p < 0) {
-    return res.status(400).json({ message: "Giá không hợp lệ" })
-  }
-
-  db.run(
-    "UPDATE products SET name=?, price=?, image_url=?, age_min=?, pieces=?, theme=? WHERE id=?",
-    [
-      String(name).trim(),
-      p,
-      image_url ? String(image_url).trim() : null,
-      age_min !== undefined && age_min !== "" && age_min !== null
-        ? parseInt(age_min, 10)
-        : null,
-      pieces !== undefined && pieces !== "" && pieces !== null
-        ? parseInt(pieces, 10)
-        : null,
-      theme ? String(theme).trim() : null,
-      id,
-    ],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ message: "Không tìm thấy sản phẩm" })
-      }
-      res.json({ message: "Đã cập nhật" })
-    }
-  )
-})
-
-app.delete("/admin/products/:id", verifyToken, requireAdmin, (req, res) => {
-  db.run("DELETE FROM products WHERE id=?", [req.params.id], function (err) {
-    if (err) {
-      return res.status(500).json({ message: "Database error" })
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ message: "Không tìm thấy sản phẩm" })
-    }
-    res.json({ message: "Đã xóa" })
-  })
-})
-
-/* ADMIN — danh sách user (không trả password) */
-
-app.get("/admin/users", verifyToken, requireAdmin, (req, res) => {
-  db.all(
-    "SELECT id, email, role FROM users ORDER BY id ASC",
-    [],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      res.json(rows)
-    }
-  )
-})
-
-app.patch("/admin/users/:id/role", verifyToken, requireAdmin, (req, res) => {
-  const { role } = req.body
-  const uid = req.params.id
-
-  if (role !== "user" && role !== "admin") {
-    return res.status(400).json({ message: "Role phải là user hoặc admin" })
-  }
-
-  db.run(
-    "UPDATE users SET role=? WHERE id=?",
-    [role, uid],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ message: "Database error" })
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ message: "Không tìm thấy user" })
-      }
-      res.json({ message: "Đã cập nhật role" })
-    }
-  )
-})
-
-/* DEFAULT ROUTE */
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(FRONTEND_ROOT, "index.html"))
-})
-
-function ensureDemoProducts(done) {
-  db.get("SELECT COUNT(*) as count FROM products", (err, row) => {
-    if (err) {
-      return done(err)
-    }
-    if (row && row.count === 0) {
-      const seedStmt = db.prepare(
-        "INSERT INTO products(name,price,image_url,age_min,pieces,theme) VALUES(?,?,?,?,?,?)"
-      )
-
-      seedStmt.run(
-        "Galactic Starship Explorer MK-II",
-        89.99,
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuClOZB0117OOwgcKaTwWWu32EuXvVY4ijhc8rXdY15TsWtIG4_mAzMBnXYnXPGYHoiyZnaP7kuB-5-GwFiUSO1KSXXrbfhgRhODbBvUXRDd1T_o3A8m0ue1qLPET212pB0ODi6l85q1HmuuCtmAhu62flb72B2UCwLPmbHPVQ1k8eRIzC0Fu83lMrPwkrtItFuORIycUzgZMpJb1fFBhW3I5QMEbSE93TYr07FcZ_YnXMPdNNMs5vryU-rb6hMVelC8oYRVGZv9MLQ",
-        9,
-        1248,
-        "Space Exploration"
-      )
-
-      seedStmt.run(
-        "Industrial High-Lift Crane",
-        149.99,
-        "https://i.pinimg.com/736x/91/23/74/91237419d1788d6cc0994186290dac14.jpg",
-        12,
-        2105,
-        "Technic"
-      )
-
-      seedStmt.run(
-        "Botanical Collection: Wildflower",
-        59.99,
-        "https://i.pinimg.com/736x/ea/e0/5f/eae05f47cbe606f33b6f103d863df94f.jpg",
-        18,
-        758,
-        "Botanical"
-      )
-
-      seedStmt.finalize(done)
-    } else {
-      done(null)
-    }
-  })
-}
-
-ensureDemoProducts((err) => {
-  if (err) {
-    console.error("ensureDemoProducts:", err)
-  }
-  app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000")
-    console.log("Open Shop: http://localhost:3000/products.html")
-  })
-})

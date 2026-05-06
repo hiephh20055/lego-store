@@ -1,558 +1,279 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giỏ hàng — PLAYARENA</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#f49d25",
-            "background-light": "#f8f7f5",
-          },
-          fontFamily: { display: ["Spline Sans", "sans-serif"] },
-        },
-      },
-    };
-  </script>
-  <style>
-    body { font-family: "Spline Sans", sans-serif; }
-    .header {
-      background-color: #ffffff;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      padding: 0 40px;
-      border-bottom: 1px solid #e5e7eb;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    .nav-link {
-      text-decoration: none;
-      color: #4b5563;
-      font-weight: 600;
-      font-size: 15px;
-      position: relative;
-      padding: 8px 0;
-      transition: color 0.3s;
-    }
-    .nav-link::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: #1a1a1a;
-      transition: width 0.3s ease;
-    }
-    .nav-link:hover::after { width: 100%; }
-    .btn-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #4b5563;
-      transition: all 0.2s;
-    }
-    .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
-    .badge {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      background-color: #f39c12;
-      color: white;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 2px 5px;
-      border-radius: 10px;
-      border: 2px solid white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>My Bag</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-background-light text-slate-900 min-h-screen flex flex-col">
-  <header class="header">
-    <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
-      <div class="flex items-center gap-12">
-        <a href="index.html" class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
-          <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
-        </a>
-        <nav class="hidden md:flex gap-7">
-          <a href="products.html" class="nav-link">Shop</a>
-          <a href="about.html" class="nav-link">Discover</a>
-          <a href="help.html" class="nav-link">Help</a>
-        </nav>
-      </div>
-      <div class="flex items-center gap-5">
-        <div class="relative search-bar hidden sm:block">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
-          <input type="text" class="bg-transparent border-none outline-none text-sm w-48 lg:w-64 focus:ring-0 pl-5" placeholder="Tìm kiếm..." />
-        </div>
-        <div class="flex gap-2">
-          <a href="products.html" class="btn-icon" title="Yêu thích" aria-label="Shop">♡</a>
-          <a href="cart.html" class="relative">
-            <button type="button" class="btn-icon" aria-label="Giỏ hàng">🛒</button>
-            <span class="badge cart-count">0</span>
-          </a>
-          <a href="login.html" id="accountLink">
-            <button type="button" id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
-          </a>
-        </div>
-      </div>
-    </div>
-  </header>
 
-  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 md:px-10 py-8">
-    <nav class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-4 tracking-widest">
-      <a class="hover:text-primary transition-colors" href="index.html">Home</a>
-      <span class="text-slate-300">›</span>
-      <span class="text-slate-600 font-semibold">Giỏ hàng</span>
-    </nav>
+<body>
 
-    <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-8 cart-page-title">Giỏ hàng (0)</h1>
+<!-- NAVBAR -->
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-      <div class="lg:col-span-2 space-y-4">
-        <div class="cart-items min-h-[120px]"></div>
-      </div>
+<header class="navbar">
+<a href="index.html" class="logo">PLAYARENA</a>
 
-      <aside class="lg:col-span-1">
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm sticky top-24">
-          <h3 class="font-bold text-lg text-slate-900 mb-4">Tóm tắt đơn hàng</h3>
-          <div class="flex justify-between text-sm text-slate-600 mb-2">
-            <span class="subtotal-items">Tạm tính (0 sản phẩm)</span>
-            <span class="subtotal-price font-semibold text-slate-900">$0.00</span>
-          </div>
-          <div class="flex justify-between text-sm text-slate-600 mb-2">
-            <span>Phí vận chuyển (ước tính)</span>
-            <span class="shipping font-semibold">FREE</span>
-          </div>
-          <div class="flex justify-between text-sm text-slate-600 mb-4">
-            <span>Thuế (ước tính)</span>
-            <span class="tax font-semibold">$0.00</span>
-          </div>
-          <hr class="border-slate-200 mb-4" />
-          <div class="flex justify-between items-center mb-6">
-            <span class="font-bold text-slate-900">Tổng cộng</span>
-            <span class="total-price text-xl font-black text-primary">$0.00</span>
-          </div>
-          <button type="button" id="btnCheckout" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-xl transition-colors shadow-sm">
-            Thanh toán an toàn
-          </button>
-          <p class="text-[11px] text-slate-400 text-center mt-3">Đơn hàng demo — không trừ tiền thật.</p>
-        </div>
-      </aside>
-    </div>
+<div class="search">
+<input type="text" placeholder="Search sets, themes, and more">
+</div>
 
-    <!-- Yêu thích -->
-    <section class="mb-12" aria-labelledby="wishlist-heading">
-      <div class="flex items-center justify-between gap-4 mb-4">
-        <h2 id="wishlist-heading" class="text-xl font-black text-slate-900 flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary">favorite</span>
-          Yêu thích của bạn
-        </h2>
-        <a href="products.html" class="text-sm font-semibold text-primary hover:underline">+ Thêm từ Shop</a>
-      </div>
-      <p id="wishlistEmpty" class="text-sm text-slate-500 mb-4 hidden">
-        Chưa có sản phẩm yêu thích. Bấm biểu tượng trái tim trên trang Shop để lưu vào đây.
-      </p>
-      <div id="wishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
-    </section>
+<div class="icons">
+<a id="accountIcon" href="login.html">👤</a>
+<span>♡</span>
+<a href="cart.html" class="cart-icon">
+🛒
+<span class="cart-count">0</span>
+</a>
+</div>
+</header>
 
-    <!-- Gợi ý từ API -->
-    <section class="mb-8" aria-labelledby="suggest-heading">
-      <h2 id="suggest-heading" class="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
-        <span class="material-symbols-outlined text-primary">recommend</span>
-        Gợi ý cho bạn
-      </h2>
-      <p class="text-sm text-slate-500 mb-4">Sản phẩm khác từ cửa hàng — chưa có trong giỏ hiện tại.</p>
-      <p id="suggestEmpty" class="text-sm text-slate-500 hidden">Đang tải hoặc không có gợi ý phù hợp.</p>
-      <div id="suggestGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
-    </section>
-  </main>
 
-  <footer class="bg-[#0d1425] text-[#a0a7b5] py-8 px-6 mt-auto">
-    <div class="max-w-[1440px] mx-auto flex flex-wrap justify-between gap-4 text-sm">
-      <p>© PLAYARENA</p>
-      <a href="help.html" class="hover:text-white">Trợ giúp</a>
-    </div>
-  </footer>
+<!-- CART PAGE -->
 
-  <script src="wishlist.js"></script>
-  <script src="cart-system.js"></script>
-  <script>
-    const API_BASE = "http://localhost:3000";
+<section class="cart-page">
+
+<h1>My Bag (0)</h1>
+
+<div class="cart-layout">
+
+<!-- LEFT SIDE -->
+
+<div class="cart-items"></div>
+
+
+
+
+<!-- RIGHT SIDE -->
+
+<div class="order-summary">
+
+<h3>Order Summary</h3>
+
+<div class="summary-row">
+<span class="subtotal-items">Subtotal (0 items)</span>
+<span class="subtotal-price">$0</span>
+</div>
+
+<div class="summary-row">
+<span>Estimated Shipping</span>
+<span class="shipping">FREE</span>
+</div>
+
+<div class="summary-row">
+<span>Estimated Tax</span>
+<span class="tax">$0</span>
+</div>
+
+<hr>
+
+<div class="summary-row total">
+<span>Total</span>
+<span class="total-price">$0</span>
+</div>
+
+<button class="checkout">Checkout Securely</button>
+
+<button class="paypal">Pay with PayPal</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- RECOMMENDED -->
+
+<section class="recommended">
+
+<h2>Recommended For You</h2>
+
+<div class="product-grid">
+
+<div class="product-card">
+<img src="images/mario.jpg">
+<h4>Mario Kart™ Luigi</h4>
+<p>$179.99</p>
+<button>Add to Bag</button>
+</div>
+
+<div class="product-card">
+<img src="images/zelda.jpg">
+<h4>Zelda Final Battle</h4>
+<p>$159.99</p>
+<button>Add to Bag</button>
+</div>
+
+<div class="product-card">
+<img src="images/sunflower.jpg">
+<h4>Sunflower Bouquet</h4>
+<p>$14.99</p>
+<button>Add to Bag</button>
+</div>
+
+</div>
+
+</section>
+
+
+<footer class="footer">
+<p>© PLAYARENA</p>
+</footer>
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+const container = document.querySelector(".cart-items");
+const totalPrice = document.querySelector(".total-price");
+const subtotalPrice = document.querySelector(".subtotal-price");
+const subtotalItems = document.querySelector(".subtotal-items");
+const cartTitle = document.querySelector(".cart-page h1");
+const cartBadge = document.querySelector(".cart-count");
+
+
+/* RENDER CART */
+
+function renderCart() {
+    const cartItemsContainer = document.querySelector(".cart-items");
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    const container = document.querySelector(".cart-items");
-    const totalPriceEl = document.querySelector(".total-price");
-    const subtotalPriceEl = document.querySelector(".subtotal-price");
-    const subtotalItemsEl = document.querySelector(".subtotal-items");
-    const cartTitleEl = document.querySelector(".cart-page-title");
-    const cartBadge = document.querySelector(".cart-count");
-
-    const TAX_RATE = 0.08;
-    const SHIPPING_THRESHOLD = 100;
-    const SHIPPING_COST = 10;
-
-    function cartIds() {
-      return new Set(cart.map(function (item) { return String(item.id); }));
-    }
-
-    function saveCart() {
-      localStorage.setItem("cart", JSON.stringify(cart));
-      if (typeof updateCartBadge === "function") {
-        updateCartBadge();
-      }
-      loadSuggestions();
-    }
-
-    function renderCart() {
-      container.innerHTML = "";
-
-      if (cart.length === 0) {
-        container.innerHTML =
-          '<div class="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center">' +
-          '<p class="text-slate-600 font-semibold mb-2">Giỏ hàng của bạn đang trống</p>' +
-          '<p class="text-sm text-slate-500 mb-6">Khám phá các bộ LEGO tại cửa hàng.</p>' +
-          '<a href="products.html" class="inline-flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors">Tiếp tục mua sắm</a>' +
-          "</div>";
-        updateTotal();
-        updateCartCount();
+    
+    if(cart.length === 0) {
+        cartItemsContainer.innerHTML = "<p>Giỏ hàng trống</p>";
         return;
-      }
-
-      cart.forEach(function (item) {
-        const div = document.createElement("div");
-        div.className =
-          "bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center";
-        const imgSrc =
-          item.img ||
-          "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
-        const safeId = String(item.id).replace(/'/g, "\\'");
-        div.innerHTML =
-          '<img src="' +
-          imgSrc +
-          '" alt="" class="w-full sm:w-28 h-28 object-cover rounded-xl bg-slate-50 shrink-0" />' +
-          '<div class="flex-1 min-w-0">' +
-          '<h3 class="font-bold text-slate-900 line-clamp-2">' +
-          item.name +
-          "</h3>" +
-          '<p class="text-primary font-bold mt-1">$' +
-          Number(item.price).toFixed(2) +
-          "</p>" +
-          '<div class="flex items-center gap-3 mt-3">' +
-          '<div class="inline-flex items-center border border-slate-200 rounded-lg">' +
-          '<button type="button" class="qty-minus px-3 py-1.5 text-slate-600 hover:bg-slate-50 rounded-l-lg font-bold" data-id="' +
-          safeId +
-          '">−</button>' +
-          '<span class="px-3 py-1.5 min-w-[2rem] text-center text-sm font-semibold">' +
-          item.qty +
-          "</span>" +
-          '<button type="button" class="qty-plus px-3 py-1.5 text-slate-600 hover:bg-slate-50 rounded-r-lg font-bold" data-id="' +
-          safeId +
-          '">+</button>' +
-          "</div>" +
-          '<button type="button" class="remove-btn text-sm text-red-500 font-semibold hover:underline ml-2" data-id="' +
-          safeId +
-          '">Xóa</button>' +
-          "</div>" +
-          "</div>" +
-          '<div class="text-right sm:ml-auto">' +
-          '<p class="text-xs text-slate-500">Thành tiền</p>' +
-          '<p class="text-lg font-black text-slate-900">$' +
-          (Number(item.price) * item.qty).toFixed(2) +
-          "</p>" +
-          "</div>";
-
-        div.querySelector(".qty-minus").addEventListener("click", function () {
-          changeQty(item.id, -1);
-        });
-        div.querySelector(".qty-plus").addEventListener("click", function () {
-          changeQty(item.id, 1);
-        });
-        div.querySelector(".remove-btn").addEventListener("click", function () {
-          removeItem(item.id);
-        });
-
-        container.appendChild(div);
-      });
-
-      updateTotal();
-      updateCartCount();
     }
 
-    function changeQty(id, delta) {
-      const item = cart.find(function (p) {
-        return String(p.id) === String(id);
-      });
-      if (!item) return;
-      item.qty += delta;
-      if (item.qty <= 0) {
-        cart = cart.filter(function (p) {
-          return String(p.id) !== String(id);
-        });
-      }
-      saveCart();
-      renderCart();
-    }
+    cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="${item.img || 'images/default.jpg'}" width="80">
+            <div>
+                <h4>${item.name}</h4>
+                <p>$${item.price}</p>
+            </div>
+            <button onclick="removeItem(${item.id})">Xóa</button>
+        </div>
+    `).join('');
+    updateTotal(); // Gọi hàm tính tổng tiền của bạn
+}
 
-    function removeItem(id) {
-      cart = cart.filter(function (p) {
-        return String(p.id) !== String(id);
-      });
-      saveCart();
-      renderCart();
-    }
 
-    function updateTotal() {
-      let subtotal = 0;
-      let count = 0;
-      cart.forEach(function (p) {
-        subtotal += p.price * p.qty;
-        count += p.qty;
-      });
-      const tax = subtotal * TAX_RATE;
-      const shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-      const total = subtotal + tax + shipping;
+/* CHANGE QTY */
 
-      if (subtotalPriceEl) subtotalPriceEl.textContent = "$" + subtotal.toFixed(2);
-      if (subtotalItemsEl)
-        subtotalItemsEl.textContent = "Tạm tính (" + count + " sản phẩm)";
-      if (document.querySelector(".tax"))
-        document.querySelector(".tax").textContent = "$" + tax.toFixed(2);
-      if (document.querySelector(".shipping"))
-        document.querySelector(".shipping").textContent =
-          shipping === 0 ? "FREE" : "$" + shipping.toFixed(2);
-      if (totalPriceEl) totalPriceEl.textContent = "$" + total.toFixed(2);
-      if (cartTitleEl) cartTitleEl.textContent = "Giỏ hàng (" + count + ")";
-    }
+function changeQty(id,delta){
 
-    function updateCartCount() {
-      const total = cart.reduce(function (sum, item) {
-        return sum + item.qty;
-      }, 0);
-      if (cartBadge) cartBadge.textContent = total;
-    }
+const item = cart.find(p=>p.id===id);
 
-    function renderWishlist() {
-      const grid = document.getElementById("wishlistGrid");
-      const empty = document.getElementById("wishlistEmpty");
-      const list = getWishlist();
-      grid.innerHTML = "";
+if(!item) return;
 
-      if (list.length === 0) {
-        empty.classList.remove("hidden");
-        return;
-      }
-      empty.classList.add("hidden");
+item.qty += delta;
 
-      list.forEach(function (w) {
-        const id = String(w.id);
-        const card = document.createElement("div");
-        card.className =
-          "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col";
-        const img =
-          w.img ||
-          "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
-        card.innerHTML =
-          '<div class="aspect-square bg-slate-50"><img src="' +
-          img +
-          '" class="w-full h-full object-cover" alt="" /></div>' +
-          '<div class="p-4 flex flex-col flex-1">' +
-          '<h3 class="font-bold text-sm text-slate-900 line-clamp-2 flex-1">' +
-          w.name +
-          "</h3>" +
-          '<p class="text-primary font-black mt-2">$' +
-          Number(w.price).toFixed(2) +
-          "</p>" +
-          '<div class="flex gap-2 mt-3">' +
-          '<button type="button" class="add-wish flex-1 bg-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-primary/90">Thêm vào giỏ</button>' +
-          '<button type="button" class="remove-wish text-xs font-semibold text-slate-500 px-2 py-2 hover:text-red-500" title="Xóa khỏi yêu thích">✕</button>' +
-          "</div>" +
-          "</div>";
+if(item.qty <=0){
 
-        card.querySelector(".add-wish").addEventListener("click", function () {
-          if (typeof addToCart === "function") {
-            addToCart({
-              id: id,
-              name: w.name,
-              price: Number(w.price),
-              img: img,
-              qty: 1,
-            });
-          }
-          cart = JSON.parse(localStorage.getItem("cart") || "[]");
-          renderCart();
-          loadSuggestions();
-        });
-        card.querySelector(".remove-wish").addEventListener("click", function () {
-          removeFromWishlist(w.id);
-          renderWishlist();
-        });
+cart = cart.filter(p=>p.id!==id);
 
-        grid.appendChild(card);
-      });
-    }
+}
 
-    async function loadSuggestions() {
-      const grid = document.getElementById("suggestGrid");
-      const empty = document.getElementById("suggestEmpty");
-      const ids = cartIds();
+saveCart();
+renderCart();
 
-      grid.innerHTML =
-        '<p class="col-span-full text-center text-sm text-slate-500 py-8">Đang tải gợi ý...</p>';
+}
 
-      try {
-        const res = await fetch(API_BASE + "/products");
-        const data = await res.json();
-        if (!res.ok) throw new Error("fail");
 
-        const suggestions = data.filter(function (p) {
-          return !ids.has(String(p.id));
-        }).slice(0, 4);
+/* REMOVE ITEM */
 
-        grid.innerHTML = "";
-        if (suggestions.length === 0) {
-          empty.classList.remove("hidden");
-          empty.textContent =
-            ids.size === 0
-              ? "Không có sản phẩm từ máy chủ."
-              : "Bạn đã thêm tất cả sản phẩm có sẵn trong giỏ, hoặc chưa có dữ liệu.";
-          return;
-        }
-        empty.classList.add("hidden");
+function removeItem(id){
 
-        suggestions.forEach(function (p) {
-          const imgUrl =
-            p.image_url ||
-            "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
-          const card = document.createElement("div");
-          card.className =
-            "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-lg transition-shadow";
-          card.innerHTML =
-            '<div class="aspect-square bg-slate-50"><img src="' +
-            imgUrl +
-            '" class="w-full h-full object-cover" alt="" /></div>' +
-            '<div class="p-4 flex flex-col flex-1">' +
-            '<h3 class="font-bold text-sm text-slate-900 line-clamp-2">' +
-            p.name +
-            "</h3>" +
-            '<p class="text-primary font-black mt-2">$' +
-            Number(p.price).toFixed(2) +
-            "</p>" +
-            '<button type="button" class="suggest-add mt-3 w-full bg-slate-900 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-slate-800">Thêm vào giỏ</button>' +
-            "</div>";
+cart = cart.filter(p=>p.id!==id);
 
-          card.querySelector(".suggest-add").addEventListener("click", function () {
-            if (typeof addToCart === "function") {
-              addToCart({
-                id: String(p.id),
-                name: p.name,
-                price: Number(p.price),
-                img: imgUrl,
-                qty: 1,
-              });
-            }
-            cart = JSON.parse(localStorage.getItem("cart") || "[]");
-            renderCart();
-            loadSuggestions();
-          });
+saveCart();
+renderCart();
 
-          grid.appendChild(card);
-        });
-      } catch (e) {
-        grid.innerHTML =
-          '<p class="col-span-full text-center text-sm text-red-500">Không tải được gợi ý — hãy bật backend (localhost:3000).</p>';
-        empty.classList.add("hidden");
-      }
-    }
+}
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const token = localStorage.getItem("token");
-      const accountLink = document.getElementById("accountLink");
-      const accountIcon = document.getElementById("accountIcon");
-      if (token && accountLink && accountIcon) {
-        accountLink.href = "profile.html";
-        accountIcon.classList.remove("bg-gray-600");
-        accountIcon.classList.add("bg-primary");
-      }
 
-      cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      renderCart();
-      renderWishlist();
-      loadSuggestions();
+/* SAVE */
 
-      window.addEventListener("wishlistchange", function () {
-        renderWishlist();
-      });
+function saveCart(){
 
-      var btnCheckout = document.getElementById("btnCheckout");
-      if (btnCheckout) {
-        btnCheckout.addEventListener("click", async function () {
-          if (cart.length === 0) {
-            alert("Giỏ hàng không có sản phẩm.");
-            return;
-          }
-          var token = localStorage.getItem("token");
-          if (!token) {
-            alert("Vui lòng đăng nhập để đặt hàng.");
-            window.location.href = "login.html";
-            return;
-          }
-          try {
-            var res = await fetch(API_BASE + "/orders", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
-              body: JSON.stringify({
-                items: cart.map(function (i) {
-                  return {
-                    id: i.id,
-                    name: i.name,
-                    price: Number(i.price),
-                    qty: i.qty,
-                    img: i.img || "",
-                  };
-                }),
-              }),
-            });
-            var data = await res.json();
-            if (!res.ok) {
-              alert(data.message || "Đặt hàng thất bại.");
-              return;
-            }
-            localStorage.setItem("cart", "[]");
-            if (typeof reloadCartFromStorage === "function") {
-              reloadCartFromStorage();
-            }
-            cart = [];
-            renderCart();
-            if (typeof updateCartBadge === "function") {
-              updateCartBadge();
-            }
-            window.location.href = "order-detail.html?id=" + data.orderId;
-          } catch (e) {
-            alert("Không kết nối được server. Hãy bật backend (port 3000).");
-          }
-        });
-      }
-    });
-  </script>
+localStorage.setItem("cart",JSON.stringify(cart));
+
+}
+
+
+const TAX_RATE = 0.08;
+const SHIPPING_THRESHOLD = 100;
+const SHIPPING_COST = 10;
+
+function updateTotal(){
+
+let subtotal = 0;
+let count = 0;
+
+cart.forEach(p=>{
+subtotal += p.price * p.qty;
+count += p.qty;
+});
+
+let tax = subtotal * TAX_RATE;
+
+let shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+
+let total = subtotal + tax + shipping;
+
+/* UPDATE UI */
+
+subtotalPrice.innerText = "$" + subtotal.toFixed(2);
+subtotalItems.innerText = "Subtotal (" + count + " items)";
+
+document.querySelector(".tax").innerText =
+"$" + tax.toFixed(2);
+
+document.querySelector(".shipping").innerText =
+shipping === 0 ? "FREE" : "$" + shipping;
+
+totalPrice.innerText = "$" + total.toFixed(2);
+
+cartTitle.innerText = "My Bag (" + count + ")";
+
+}
+
+
+/* CART BADGE */
+
+function updateCartCount(){
+
+const total = cart.reduce((sum,item)=>sum+item.qty,0);
+
+if(cartBadge) cartBadge.innerText = total;
+
+}
+
+
+/* LOAD */
+
+renderCart();
+updateCartCount();
+
+</script>
+
+<script>
+
+const token = localStorage.getItem("token")
+
+if(token){
+
+const icon=document.getElementById("accountIcon")
+
+if(icon){
+
+icon.href="profile.html"
+
+}
+
+}
+
+</script>
+
 </body>
 </html>
