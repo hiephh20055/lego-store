@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Console — PLAYARENA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: "Spline Sans", sans-serif; background: #f5f7fb; color: #111827; }
+    .sidebar-dark { background: linear-gradient(180deg, #1f2430 0%, #1c2230 100%); }
+    .nav-item.active { background: #facc15; color: #111827; font-weight: 700; }
+    .table-wrap::-webkit-scrollbar { height: 8px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 20px; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="min-h-screen flex">
+    <aside class="sidebar-dark w-64 text-slate-200 flex flex-col justify-between p-4">
+      <div>
+        <div class="px-3 py-3 mb-4 border-b border-slate-700">
+          <p class="text-lg font-black text-yellow-400">BrickAdmin</p>
+          <p class="text-xs text-slate-400">Master Builder Console</p>
+        </div>
+        <nav class="space-y-2">
+          <button class="nav-item w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60" data-tab="overview">Overview</button>
+          <button class="nav-item w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60 active" data-tab="inventory">Inventory</button>
+          <button class="nav-item w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60" data-tab="orders">Orders</button>
+          <button class="nav-item w-full text-left px-3 py-2 rounded-lg hover:bg-slate-700/60" data-tab="customers">Customers</button>
+        </nav>
+      </div>
+      <div class="space-y-2 text-sm">
+        <a href="index.html" class="block px-3 py-2 rounded-lg hover:bg-slate-700/60">Back to store</a>
+        <button id="btnLogout" class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-500/20 text-red-300">Log out</button>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-8">
+      <header class="bg-white border border-slate-200 rounded-xl px-5 py-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 id="screenTitle" class="text-3xl font-black tracking-tight text-slate-800">Inventory Management</h1>
+          <p class="text-xs text-slate-500 mt-1">Admin / Inventory / Set & Pieces</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="adminEmail" class="text-sm text-slate-500"></span>
+          <button id="btnRefresh" class="px-3 py-2 text-sm font-semibold border border-slate-300 rounded-lg hover:bg-slate-50">Refresh</button>
+          <button id="btnQuickAdd" class="px-3 py-2 text-sm font-semibold bg-yellow-400 rounded-lg hover:bg-yellow-300">+ Add Set</button>
+        </div>
+      </header>
+
+      <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <article class="bg-white border border-slate-200 rounded-xl p-4">
+          <p class="text-[11px] uppercase tracking-wide text-slate-500">Total Products</p>
+          <p id="kpiProducts" class="text-3xl font-black mt-2 text-slate-800">0</p>
+        </article>
+        <article class="bg-white border border-slate-200 rounded-xl p-4">
+          <p class="text-[11px] uppercase tracking-wide text-slate-500">Categories</p>
+          <p id="kpiCategories" class="text-3xl font-black mt-2 text-slate-800">0</p>
+        </article>
+        <article class="bg-white border border-slate-200 rounded-xl p-4">
+          <p class="text-[11px] uppercase tracking-wide text-slate-500">Low Stock</p>
+          <p id="kpiLowStock" class="text-3xl font-black mt-2 text-red-500">0</p>
+        </article>
+        <article class="bg-slate-900 text-white rounded-xl p-4">
+          <p class="text-[11px] uppercase tracking-wide text-slate-400">Pending Orders</p>
+          <p id="kpiPending" class="text-3xl font-black mt-2 text-yellow-300">0</p>
+        </article>
+      </section>
+
+      <section class="bg-white border border-slate-200 rounded-xl">
+        <div class="px-4 py-3 border-b border-slate-200 flex flex-wrap items-center gap-3">
+          <select id="themeFilter" class="text-sm border border-slate-300 rounded-lg px-3 py-2">
+            <option value="">Category: All Themes</option>
+          </select>
+          <select id="stockFilter" class="text-sm border border-slate-300 rounded-lg px-3 py-2">
+            <option value="">Stock Status: All</option>
+            <option value="low">Low stock only</option>
+            <option value="safe">Safe stock only</option>
+          </select>
+          <input id="searchInput" class="ml-auto text-sm border border-slate-300 rounded-lg px-3 py-2 w-full md:w-60" placeholder="Search sets..." />
+        </div>
+
+        <div id="inventoryPane" class="tab-pane">
+          <div class="table-wrap overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[11px]">
+                <tr>
+                  <th class="px-4 py-3 text-left">Product</th>
+                  <th class="px-4 py-3 text-left">Pieces</th>
+                  <th class="px-4 py-3 text-left">Age</th>
+                  <th class="px-4 py-3 text-left">Price</th>
+                  <th class="px-4 py-3 text-left">Stock</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productRows"></tbody>
+            </table>
+          </div>
+          <div class="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
+            <p id="inventoryMeta" class="text-xs text-slate-500"></p>
+            <div class="space-x-2">
+              <button id="prevPage" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Prev</button>
+              <button id="nextPage" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="ordersPane" class="tab-pane hidden">
+          <div class="table-wrap overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[11px]">
+                <tr>
+                  <th class="px-4 py-3 text-left">Order</th>
+                  <th class="px-4 py-3 text-left">Customer</th>
+                  <th class="px-4 py-3 text-left">Date</th>
+                  <th class="px-4 py-3 text-left">Status</th>
+                  <th class="px-4 py-3 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody id="orderRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="customersPane" class="tab-pane hidden">
+          <div class="table-wrap overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-500 uppercase text-[11px]">
+                <tr>
+                  <th class="px-4 py-3 text-left">ID</th>
+                  <th class="px-4 py-3 text-left">Email</th>
+                  <th class="px-4 py-3 text-left">Role</th>
+                </tr>
+              </thead>
+              <tbody id="userRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="overviewPane" class="tab-pane hidden p-4 grid lg:grid-cols-2 gap-4">
+          <article class="border border-slate-200 rounded-xl p-4">
+            <h3 class="font-bold text-slate-800 mb-2">Low stock alerts</h3>
+            <div id="lowStockList" class="space-y-2"></div>
+          </article>
+          <article class="border border-slate-200 rounded-xl p-4">
+            <h3 class="font-bold text-slate-800 mb-2">Recent customer activity</h3>
+            <div id="recentActivityList" class="space-y-2"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="productModal" class="backdrop:bg-slate-900/50 rounded-xl p-0 w-full max-w-xl">
+    <form id="productForm" class="bg-white rounded-xl p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 id="formTitle" class="font-black text-xl">Add Set</h3>
+        <button type="button" id="closeModal" class="text-slate-500">X</button>
+      </div>
+      <input type="hidden" id="editId" value="" />
+      <div class="grid md:grid-cols-2 gap-3">
+        <input id="fName" required placeholder="Set name" class="border border-slate-300 rounded-lg px-3 py-2" />
+        <input id="fPrice" type="number" min="0" step="0.01" required placeholder="Price (USD)" class="border border-slate-300 rounded-lg px-3 py-2" />
+        <input id="fStock" type="number" min="0" required placeholder="Stock quantity" class="border border-slate-300 rounded-lg px-3 py-2" />
+        <input id="fAge" type="number" min="0" required placeholder="Min age" class="border border-slate-300 rounded-lg px-3 py-2" />
+        <input id="fPieces" type="number" min="0" required placeholder="Pieces count" class="border border-slate-300 rounded-lg px-3 py-2" />
+        <input id="fImageFile" type="file" accept="image/*" class="border border-slate-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="flex items-center gap-3">
+        <img id="imagePreview" class="w-20 h-20 rounded-lg border border-slate-300 object-cover hidden" alt="preview" />
+        <p class="text-xs text-slate-500">Upload image from your computer.</p>
+      </div>
+      <p id="formMessage" class="text-sm text-red-500 min-h-[20px]"></p>
+      <div class="flex gap-2">
+        <button class="flex-1 bg-yellow-400 rounded-lg py-2 font-bold">Save Set</button>
+        <button type="button" id="btnCancelEdit" class="px-4 border border-slate-300 rounded-lg">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const API_BASE = "http://localhost:3000";
+    const LOW_STOCK_THRESHOLD = 10;
+    const PAGE_SIZE = 8;
+
+    const state = { products: [], orders: [], users: [], page: 1, tab: "inventory" };
+    const imageFileInput = document.getElementById("fImageFile");
+    const imagePreview = document.getElementById("imagePreview");
+
+    function authHeaders() {
+      const token = localStorage.getItem("token");
+      return { "Content-Type": "application/json", Authorization: "Bearer " + token };
+    }
+    function fmtMoney(v) { return "$" + Number(v || 0).toFixed(2); }
+    function fmtDate(v) {
+      if (!v) return "N/A";
+      return new Date(String(v).replace(" ", "T")).toLocaleString("vi-VN");
+    }
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userEmail");
+      window.location.href = "login.html";
+    }
+
+    async function ensureAdmin() {
+      const token = localStorage.getItem("token");
+      if (!token) { window.location.href = "login.html"; return false; }
+      const res = await fetch(API_BASE + "/profile", { headers: authHeaders() });
+      const data = await res.json();
+      if (!res.ok || data.role !== "admin") { window.location.href = "login.html"; return false; }
+      document.getElementById("adminEmail").textContent = data.email || "";
+      return true;
+    }
+
+    function switchTab(nextTab) {
+      state.tab = nextTab;
+      document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.tab === nextTab));
+      document.querySelectorAll(".tab-pane").forEach((p) => p.classList.add("hidden"));
+      document.getElementById(nextTab + "Pane").classList.remove("hidden");
+      document.getElementById("screenTitle").textContent =
+        nextTab === "inventory" ? "Inventory Management" :
+        nextTab === "orders" ? "Order Management" :
+        nextTab === "customers" ? "Customer Management" : "Overview";
+    }
+
+    function applyProductFilter() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const theme = document.getElementById("themeFilter").value;
+      const stockFilter = document.getElementById("stockFilter").value;
+      return state.products.filter((p) => {
+        const hitText = !q || String(p.name || "").toLowerCase().includes(q);
+        const hitTheme = !theme || String(p.theme || "") === theme;
+        const stock = Number(p.stock || 0);
+        const hitStock = !stockFilter || (stockFilter === "low" ? stock <= LOW_STOCK_THRESHOLD : stock > LOW_STOCK_THRESHOLD);
+        return hitText && hitTheme && hitStock;
+      });
+    }
+
+    function renderInventory() {
+      const rows = document.getElementById("productRows");
+      const list = applyProductFilter();
+      const start = (state.page - 1) * PAGE_SIZE;
+      const pageRows = list.slice(start, start + PAGE_SIZE);
+      rows.innerHTML = pageRows.length ? "" : '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No data found.</td></tr>';
+      pageRows.forEach((p) => {
+        const stock = Number(p.stock || 0);
+        const stockCls = stock <= LOW_STOCK_THRESHOLD ? "text-red-500" : "text-emerald-600";
+        const tr = document.createElement("tr");
+        tr.className = "border-t border-slate-200";
+        const img = p.image_url
+          ? '<img src="' + p.image_url + '" alt="' + (p.name || "set") + '" class="w-12 h-12 rounded object-cover border border-slate-200" />'
+          : '<div class="w-12 h-12 rounded bg-slate-100 border border-slate-200"></div>';
+        tr.innerHTML =
+          '<td class="px-4 py-3"><div class="flex items-center gap-3">' + img + '<div><p class="font-semibold">' + (p.name || "") + '</p><p class="text-xs text-slate-500">#' + p.id + "</p></div></div></td>" +
+          '<td class="px-4 py-3">' + Number(p.pieces || 0) + "</td>" +
+          '<td class="px-4 py-3">' + Number(p.age_min || 0) + "+</td>" +
+          '<td class="px-4 py-3">' + fmtMoney(p.price) + "</td>" +
+          '<td class="px-4 py-3 font-semibold ' + stockCls + '">' + stock + " units</td>" +
+          '<td class="px-4 py-3 text-right space-x-2">' +
+          '<button class="btn-edit text-blue-600" data-id="' + p.id + '">Edit</button>' +
+          '<button class="btn-del text-red-500" data-id="' + p.id + '">Delete</button>' +
+          "</td>";
+        rows.appendChild(tr);
+      });
+      document.getElementById("inventoryMeta").textContent =
+        "Showing " + (list.length ? start + 1 : 0) + " to " + Math.min(start + PAGE_SIZE, list.length) + " of " + list.length + " entries";
+
+      rows.querySelectorAll(".btn-edit").forEach((b) => b.addEventListener("click", () => openEditProduct(b.dataset.id)));
+      rows.querySelectorAll(".btn-del").forEach((b) => b.addEventListener("click", () => removeProduct(b.dataset.id)));
+    }
+
+    function renderOrders() {
+      const rows = document.getElementById("orderRows");
+      rows.innerHTML = "";
+      if (!state.orders.length) {
+        rows.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No orders yet.</td></tr>';
+        return;
+      }
+      state.orders.forEach((o) => {
+        const tr = document.createElement("tr");
+        tr.className = "border-t border-slate-200";
+        tr.innerHTML =
+          '<td class="px-4 py-3">#' + o.id + "</td>" +
+          '<td class="px-4 py-3">' + (o.user_email || "N/A") + "</td>" +
+          '<td class="px-4 py-3">' + fmtDate(o.created_at) + "</td>" +
+          '<td class="px-4 py-3"><select class="order-status border border-slate-300 rounded px-2 py-1" data-id="' + o.id + '">' +
+          ["pending","processing","shipped","completed","cancelled","confirmed"].map((s)=>'<option value="'+s+'"'+(s===o.status?" selected":"")+">"+s+"</option>").join("") +
+          "</select></td>" +
+          '<td class="px-4 py-3 text-right font-semibold">' + fmtMoney(o.total) + "</td>";
+        rows.appendChild(tr);
+      });
+      rows.querySelectorAll(".order-status").forEach((sel) => {
+        sel.addEventListener("change", async () => {
+          await fetch(API_BASE + "/admin/orders/" + sel.dataset.id + "/status", {
+            method: "PATCH", headers: authHeaders(), body: JSON.stringify({ status: sel.value })
+          });
+          await loadAllData();
+        });
+      });
+    }
+
+    function renderUsers() {
+      const rows = document.getElementById("userRows");
+      rows.innerHTML = "";
+      if (!state.users.length) {
+        rows.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">No customers yet.</td></tr>';
+        return;
+      }
+      state.users.forEach((u) => {
+        const tr = document.createElement("tr");
+        tr.className = "border-t border-slate-200";
+        tr.innerHTML =
+          '<td class="px-4 py-3">' + u.id + "</td>" +
+          '<td class="px-4 py-3">' + (u.email || "") + "</td>" +
+          '<td class="px-4 py-3"><select class="role-select border border-slate-300 rounded px-2 py-1" data-id="' + u.id + '">' +
+          '<option value="user"' + (u.role === "user" ? " selected" : "") + ">user</option>" +
+          '<option value="admin"' + (u.role === "admin" ? " selected" : "") + ">admin</option></select></td>";
+        rows.appendChild(tr);
+      });
+      rows.querySelectorAll(".role-select").forEach((sel) => {
+        sel.addEventListener("change", async () => {
+          await fetch(API_BASE + "/admin/users/" + sel.dataset.id + "/role", {
+            method: "PATCH", headers: authHeaders(), body: JSON.stringify({ role: sel.value })
+          });
+        });
+      });
+    }
+
+    function renderOverview() {
+      const low = state.products.filter((p) => Number(p.stock || 0) <= LOW_STOCK_THRESHOLD).slice(0, 8);
+      const recent = state.orders.slice(0, 8);
+      document.getElementById("lowStockList").innerHTML = low.length
+        ? low.map((p) => '<div class="border border-slate-200 rounded-lg px-3 py-2 text-sm"><b>#' + p.id + "</b> " + p.name + ' <span class="text-red-500 float-right">' + Number(p.stock || 0) + " units</span></div>").join("")
+        : '<p class="text-sm text-slate-500">No low-stock products.</p>';
+      document.getElementById("recentActivityList").innerHTML = recent.length
+        ? recent.map((o) => '<div class="border border-slate-200 rounded-lg px-3 py-2 text-sm"><b>' + (o.user_email || "N/A") + "</b> created order #" + o.id + '<div class="text-xs text-slate-500 mt-1">' + fmtDate(o.created_at) + " - " + fmtMoney(o.total) + "</div></div>").join("")
+        : '<p class="text-sm text-slate-500">No recent activity.</p>';
+    }
+
+    function refreshKpi() {
+      const categories = new Set(state.products.map((p) => p.theme).filter(Boolean)).size;
+      const lowStock = state.products.filter((p) => Number(p.stock || 0) <= LOW_STOCK_THRESHOLD).length;
+      const pending = state.orders.filter((o) => ["pending", "processing"].includes(String(o.status || "").toLowerCase())).length;
+      document.getElementById("kpiProducts").textContent = state.products.length.toLocaleString("en-US");
+      document.getElementById("kpiCategories").textContent = String(categories);
+      document.getElementById("kpiLowStock").textContent = String(lowStock);
+      document.getElementById("kpiPending").textContent = String(pending);
+
+      const themeFilter = document.getElementById("themeFilter");
+      const oldVal = themeFilter.value;
+      const themes = Array.from(new Set(state.products.map((p) => p.theme).filter(Boolean))).sort();
+      themeFilter.innerHTML = '<option value="">Category: All Themes</option>' + themes.map((t) => '<option value="' + t + '">' + t + "</option>").join("");
+      themeFilter.value = oldVal;
+    }
+
+    function renderAll() {
+      refreshKpi();
+      renderInventory();
+      renderOrders();
+      renderUsers();
+      renderOverview();
+    }
+
+    async function loadAllData() {
+      const [pRes, oRes, uRes] = await Promise.all([
+        fetch(API_BASE + "/products"),
+        fetch(API_BASE + "/admin/orders", { headers: authHeaders() }),
+        fetch(API_BASE + "/admin/users", { headers: authHeaders() }),
+      ]);
+      state.products = (await pRes.json()) || [];
+      state.orders = (await oRes.json()) || [];
+      state.users = (await uRes.json()) || [];
+      renderAll();
+    }
+
+    function openCreateProduct() {
+      document.getElementById("formTitle").textContent = "Add Set";
+      document.getElementById("editId").value = "";
+      document.getElementById("productForm").reset();
+      document.getElementById("formMessage").textContent = "";
+      imagePreview.classList.add("hidden");
+      imagePreview.removeAttribute("src");
+      document.getElementById("productModal").showModal();
+    }
+    function openEditProduct(id) {
+      const p = state.products.find((x) => String(x.id) === String(id));
+      if (!p) return;
+      document.getElementById("formTitle").textContent = "Edit Set #" + p.id;
+      document.getElementById("editId").value = p.id;
+      document.getElementById("fName").value = p.name || "";
+      document.getElementById("fPrice").value = p.price || 0;
+      document.getElementById("fStock").value = p.stock || 0;
+      document.getElementById("fAge").value = p.age_min || "";
+      document.getElementById("fPieces").value = p.pieces || "";
+      imageFileInput.value = "";
+      if (p.image_url) {
+        imagePreview.src = p.image_url;
+        imagePreview.classList.remove("hidden");
+      } else {
+        imagePreview.classList.add("hidden");
+        imagePreview.removeAttribute("src");
+      }
+      document.getElementById("productModal").showModal();
+    }
+    async function removeProduct(id) {
+      if (!confirm("Delete this set?")) return;
+      await fetch(API_BASE + "/admin/products/" + id, { method: "DELETE", headers: authHeaders() });
+      await loadAllData();
+    }
+
+    document.getElementById("productForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const editId = document.getElementById("editId").value;
+      const formData = new FormData();
+      formData.append("name", document.getElementById("fName").value.trim());
+      formData.append("price", document.getElementById("fPrice").value);
+      formData.append("stock", document.getElementById("fStock").value || 0);
+      formData.append("age_min", document.getElementById("fAge").value || 0);
+      formData.append("pieces", document.getElementById("fPieces").value || 0);
+      if (imageFileInput.files && imageFileInput.files[0]) {
+        formData.append("image", imageFileInput.files[0]);
+      }
+      const url = editId ? API_BASE + "/admin/products/" + editId : API_BASE + "/admin/products";
+      const method = editId ? "PUT" : "POST";
+      const token = localStorage.getItem("token");
+      const res = await fetch(url, { method, headers: { Authorization: "Bearer " + token }, body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById("formMessage").textContent = data.message || "Unable to save set";
+        return;
+      }
+      document.getElementById("productModal").close();
+      await loadAllData();
+    });
+
+    document.getElementById("btnRefresh").addEventListener("click", loadAllData);
+    document.getElementById("btnQuickAdd").addEventListener("click", openCreateProduct);
+    document.getElementById("closeModal").addEventListener("click", () => document.getElementById("productModal").close());
+    document.getElementById("btnCancelEdit").addEventListener("click", () => document.getElementById("productModal").close());
+    document.getElementById("btnLogout").addEventListener("click", logout);
+    document.getElementById("searchInput").addEventListener("input", () => { state.page = 1; renderInventory(); });
+    document.getElementById("themeFilter").addEventListener("change", () => { state.page = 1; renderInventory(); });
+    document.getElementById("stockFilter").addEventListener("change", () => { state.page = 1; renderInventory(); });
+    document.getElementById("prevPage").addEventListener("click", () => { if (state.page > 1) { state.page--; renderInventory(); } });
+    document.getElementById("nextPage").addEventListener("click", () => {
+      const maxPage = Math.max(1, Math.ceil(applyProductFilter().length / PAGE_SIZE));
+      if (state.page < maxPage) { state.page++; renderInventory(); }
+    });
+    document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+    imageFileInput.addEventListener("change", function () {
+      const f = this.files && this.files[0];
+      if (!f) {
+        imagePreview.classList.add("hidden");
+        imagePreview.removeAttribute("src");
+        return;
+      }
+      imagePreview.src = URL.createObjectURL(f);
+      imagePreview.classList.remove("hidden");
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const ok = await ensureAdmin();
+      if (!ok) return;
+      await loadAllData();
+      switchTab("inventory");
+    });
+  </script>
+</body>
+</html>

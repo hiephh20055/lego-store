@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PLAYARENA - Profile</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                legoYellow: '#ffcf00',
+                legoRed: '#d11013',
+                legoOrange: '#fd8024',
+                legoNavy: '#20214b',
+                legoGrey: '#f8f8f8',
+              },
+              fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+            }
+          }
+        }
+    </script>
+    <style>
+        .brand-heading { font-weight: 900; text-transform: uppercase; font-style: italic; }
+        .hover-scale { transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .group:hover .hover-scale { transform: scale(1.1); }
+        .active-press:active { transform: scale(0.96); filter: brightness(0.9); }
+        .wishlist-btn.is-active svg { fill: #ef4444; stroke: #ef4444; }
+        
+        /* Navbar Custom Styles */
+        .header { background-color: #ffffff; height: 70px; display: flex; align-items: center; padding: 0 40px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; }
+        .nav-link { text-decoration: none; color: #4b5563; font-weight: 600; font-size: 15px; position: relative; padding: 8px 0; transition: color 0.3s; }
+        .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #1a1a1a; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .search-bar { position: relative; background-color: #f3f4f6; border-radius: 8px; padding: 8px 12px 8px 36px; width: 280px; transition: all 0.3s; }
+        .search-bar:focus-within { background-color: #fff; border-color: #d1d5db; width: 320px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #4b5563; transition: all 0.2s; }
+        .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
+        .badge { position: absolute; top: 4px; right: 4px; background-color: #f39c12; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid white; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <header class="header">
+    <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-12">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
+                <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
+            </a>
+            <nav class="flex gap-7">
+                <a href="products.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">Discover</a>
+                <a href="help.html" class="nav-link">Help</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="search-bar">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0" placeholder="Search...">
+            </div>
+            <div class="flex gap-2">
+                <button class="btn-icon">♡</button>
+                <a href="cart.html" class="relative">
+                    <button class="btn-icon">🛒</button>
+                    <span id="cartCount" class="badge">0</span>
+                </a>
+                <a href="login.html" id="accountLink">
+                    <button id="accountIcon" class="btn-icon bg-legoYellow !text-white">👤</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    </header>
+
+  <!-- Main layout -->
+  <div class="flex max-w-[1400px] mx-auto mt-6 px-4 gap-6">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white rounded-lg shadow-sm h-fit overflow-hidden">
+      <div class="flex flex-col text-sm text-gray-700">
+        <a href="profile.html" class="sidebar-item active-sidebar p-3 flex items-center gap-3">
+          <i class="fa-solid fa-house"></i> Account Overview
+        </a>
+        <a href="cart.html" class="sidebar-item p-3 border-t flex items-center gap-3">
+          <i class="fa-solid fa-box"></i> My Orders
+        </a>
+        <a href="wishlist.html" class="sidebar-item p-3 border-t flex items-center gap-3">
+          <i class="fa-solid fa-star"></i> My wishlist
+        </a>
+        <button id="logoutSidebar" class="text-left sidebar-item p-3 border-t flex items-center gap-3 text-red-600 bg-transparent w-full">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1">
+      <h1 class="text-2xl font-bold mb-2">My Account</h1>
+      <p class="text-sm text-gray-600 mb-6">
+        Logged in as <span id="profileEmail" class="font-semibold"></span>
+      </p>
+
+      <!-- Account Overview -->
+      <div class="bg-white rounded-lg p-6 mb-6 border shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Account Overview</h2>
+          <button id="editProfileBtn" class="bg-[#f39c12] hover:bg-[#e8910c] text-white font-bold py-2 px-4 rounded-lg transition-colors">
+            Edit Profile
+          </button>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- Avatar Section -->
+          <div class="flex flex-col items-center">
+            <div class="w-32 h-32 bg-gray-100 rounded-full overflow-hidden border-2 border-gray-200 mb-3">
+              <img id="profileAvatar" src="" alt="Avatar" class="w-full h-full object-cover">
+            </div>
+            <label for="avatarInput" class="text-sm text-blue-500 cursor-pointer hover:underline">
+              Change Avatar
+            </label>
+            <input type="file" id="avatarInput" accept="image/*" class="hidden">
+          </div>
+
+          <!-- Profile Fields -->
+          <div class="flex-1 space-y-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+              <input type="text" id="profileName" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f39c12] focus:border-transparent" placeholder="Enter your name" disabled>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+              <input type="tel" id="profilePhone" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f39c12] focus:border-transparent" placeholder="Enter your phone number" disabled>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+              <input type="email" id="profileEmailInput" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f39c12] focus:border-transparent bg-gray-50" placeholder="Enter your email" disabled>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Address</label>
+              <textarea id="profileAddress" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f39c12] focus:border-transparent resize-none" rows="3" placeholder="Enter your address" disabled></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button (hidden by default) -->
+        <div id="saveSection" class="hidden mt-6 flex gap-3">
+          <button id="saveProfileBtn" class="bg-[#f39c12] hover:bg-[#e8910c] text-white font-bold py-2 px-6 rounded-lg transition-colors">
+            Save Changes
+          </button>
+          <button id="cancelEditBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-6 rounded-lg transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="cart-system.js"></script>
+  <script>
+  const API_BASE = "http://localhost:3000";
+
+  function doLogout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
+
+  // Load profile data from localStorage
+  function loadProfileData() {
+    const profileData = JSON.parse(localStorage.getItem("profileData") || "{}");
+    
+    if (profileData.name) {
+      document.getElementById("profileName").value = profileData.name;
+    }
+    if (profileData.phone) {
+      document.getElementById("profilePhone").value = profileData.phone;
+    }
+    if (profileData.address) {
+      document.getElementById("profileAddress").value = profileData.address;
+    }
+    if (profileData.avatar) {
+      document.getElementById("profileAvatar").src = profileData.avatar;
+    } else {
+      // Default avatar placeholder
+      document.getElementById("profileAvatar").src = "https://via.placeholder.com/150?text=Avatar";
+    }
+  }
+
+  // Save profile data to localStorage
+  function saveProfileData() {
+    const profileData = {
+      name: document.getElementById("profileName").value,
+      phone: document.getElementById("profilePhone").value,
+      address: document.getElementById("profileAddress").value,
+      avatar: document.getElementById("profileAvatar").src
+    };
+    localStorage.setItem("profileData", JSON.stringify(profileData));
+    
+    // Show success message
+    alert("Profile updated successfully!");
+  }
+
+  // Enable/disable profile fields for editing
+  function toggleEditMode(isEditing) {
+    const fields = ["profileName", "profilePhone", "profileAddress"];
+    const saveSection = document.getElementById("saveSection");
+    const editBtn = document.getElementById("editProfileBtn");
+    
+    fields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      field.disabled = !isEditing;
+      if (isEditing) {
+        field.classList.remove("bg-gray-50");
+      } else {
+        field.classList.add("bg-gray-50");
+      }
+    });
+    
+    if (isEditing) {
+      saveSection.classList.remove("hidden");
+      editBtn.classList.add("hidden");
+    } else {
+      saveSection.classList.add("hidden");
+      editBtn.classList.remove("hidden");
+    }
+  }
+
+  // Handle avatar upload
+  document.getElementById("avatarInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById("profileAvatar").src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Edit button click
+  document.getElementById("editProfileBtn").addEventListener("click", function() {
+    toggleEditMode(true);
+  });
+
+  // Save button click
+  document.getElementById("saveProfileBtn").addEventListener("click", function() {
+    saveProfileData();
+    toggleEditMode(false);
+  });
+
+  // Cancel button click
+  document.getElementById("cancelEditBtn").addEventListener("click", function() {
+    loadProfileData(); // Revert changes
+    toggleEditMode(false);
+  });
+
+  document.addEventListener("DOMContentLoaded", async function () {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // account button in header
+    const accountLink = document.getElementById("accountLink");
+    const accountIcon = document.getElementById("accountIcon");
+    
+    if (token) {
+      accountLink.href = "profile.html";
+      accountIcon.classList.remove("bg-gray-600");
+      accountIcon.classList.add("bg-legoYellow");
+    }
+
+    // logout in sidebar
+    const logoutSidebar = document.getElementById("logoutSidebar");
+    if (logoutSidebar) {
+      logoutSidebar.addEventListener("click", doLogout);
+    }
+
+    // Load profile data
+    loadProfileData();
+
+    // optimistic email from localStorage
+    const cachedEmail = localStorage.getItem("userEmail");
+    if (cachedEmail) {
+      document.getElementById("profileEmail").innerText = cachedEmail;
+      document.getElementById("profileEmailInput").value = cachedEmail;
+    }
+
+    // update cart badge
+    if (typeof updateCartBadge === "function") {
+      updateCartBadge();
+    }
+
+    // verify with backend /profile
+    try {
+      const res = await fetch(API_BASE + "/profile", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (!res.ok) {
+        doLogout();
+        return;
+      }
+
+      const data = await res.json();
+      if (data.email) {
+        document.getElementById("profileEmail").innerText = data.email;
+        document.getElementById("profileEmailInput").value = data.email;
+        localStorage.setItem("userEmail", data.email);
+      }
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
+    } catch (e) {
+      // on backend error, fall back to localStorage
+    }
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PLAYARENA - Cart</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                legoYellow: '#ffcf00',
+                legoRed: '#d11013',
+                legoOrange: '#fd8024',
+                legoNavy: '#20214b',
+                legoGrey: '#f8f8f8',
+              },
+              fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+            }
+          }
+        }
+    </script>
+    <style>
+        .brand-heading { font-weight: 900; text-transform: uppercase; font-style: italic; }
+        .hover-scale { transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .group:hover .hover-scale { transform: scale(1.1); }
+        .active-press:active { transform: scale(0.96); filter: brightness(0.9); }
+        .wishlist-btn.is-active svg { fill: #ef4444; stroke: #ef4444; }
+        
+        /* Navbar Custom Styles */
+        .header { background-color: #ffffff; height: 70px; display: flex; align-items: center; padding: 0 40px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; }
+        .nav-link { text-decoration: none; color: #4b5563; font-weight: 600; font-size: 15px; position: relative; padding: 8px 0; transition: color 0.3s; }
+        .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #1a1a1a; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .search-bar { position: relative; background-color: #f3f4f6; border-radius: 8px; padding: 8px 12px 8px 36px; width: 280px; transition: all 0.3s; }
+        .search-bar:focus-within { background-color: #fff; border-color: #d1d5db; width: 320px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #4b5563; transition: all 0.2s; }
+        .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
+        .badge { position: absolute; top: 4px; right: 4px; background-color: #f39c12; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid white; }
+        
+        /* Cart Page Styles */
+        .cart-page { max-width: 1280px; margin: 0 auto; padding: 2rem 1rem; }
+        .cart-layout { display: flex; flex-direction: column; gap: 2rem; }
+        @media (min-width: 1024px) {
+            .cart-layout { flex-direction: row; }
+        }
+        .cart-items { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+        .cart-item { background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .cart-item img { border-radius: 0.5rem; object-fit: cover; }
+        .cart-item h4 { font-weight: 700; color: #111827; }
+        .cart-item p { color: #4b5563; font-weight: 600; }
+        .cart-item button { background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; border: none; cursor: pointer; transition: background-color 0.2s; }
+        .cart-item button:hover { background: #dc2626; }
+        .order-summary { width: 100%; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); height: fit-content; }
+        @media (min-width: 1024px) {
+            .order-summary { width: 24rem; }
+        }
+        .order-summary h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
+        .summary-row.total { border-top: 1px solid #e5e7eb; padding-top: 1rem; font-weight: 700; font-size: 1.125rem; }
+        .checkout { width: 100%; background: #f39c12; color: white; font-weight: 700; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s; margin-bottom: 0.5rem; }
+        .checkout:hover { background: #e8910c; }
+        .paypal { width: 100%; background: #0070ba; color: white; font-weight: 700; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s; }
+        .paypal:hover { background: #005a8a; }
+        .recommended { max-width: 1280px; margin: 0 auto; padding: 3rem 1rem; }
+        .recommended h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .product-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 1.5rem; }
+        @media (min-width: 768px) {
+            .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        .product-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-align: center; }
+        .product-card img { width: 100%; height: 12rem; object-fit: cover; border-radius: 0.5rem; margin-bottom: 0.75rem; }
+        .product-card h4 { font-weight: 700; margin-bottom: 0.5rem; }
+        .product-card p { font-size: 1.125rem; font-weight: 700; color: #f39c12; margin-bottom: 0.75rem; }
+        .product-card button { background: #111827; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; border: none; cursor: pointer; transition: background-color 0.2s; }
+        .product-card button:hover { background: #1f2937; }
+
+        /* Payment Modal */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-backdrop.hidden { display: none; }
+        .modal-card { background: #fff; border-radius: 1.25rem; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: #fff; border-radius: 1.25rem 1.25rem 0 0; z-index: 1; }
+        .modal-header h2 { font-size: 1.125rem; font-weight: 800; color: #111; }
+        .modal-close { width: 36px; height: 36px; border-radius: 50%; border: none; background: #f3f4f6; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: background 0.2s; }
+        .modal-close:hover { background: #e5e7eb; color: #111; }
+        .modal-section { padding: 1.25rem 1.5rem; border-bottom: 1px solid #f3f4f6; }
+        .modal-section:last-child { border-bottom: none; }
+        .modal-section h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 0.75rem; }
+        .pay-item { display: flex; gap: 0.75rem; align-items: center; padding: 0.5rem 0; }
+        .pay-item img { width: 52px; height: 52px; object-fit: contain; border-radius: 0.5rem; background: #f9fafb; border: 1px solid #e5e7eb; flex-shrink: 0; }
+        .pay-item-info { flex: 1; }
+        .pay-item-info .name { font-weight: 700; font-size: 0.9rem; color: #111; }
+        .pay-item-info .qty { font-size: 0.8rem; color: #6b7280; }
+        .pay-item-price { font-weight: 700; color: #111; font-size: 0.9rem; }
+        .pay-row { display: flex; justify-content: space-between; font-size: 0.875rem; color: #4b5563; padding: 0.3rem 0; }
+        .pay-row.total { font-size: 1rem; font-weight: 800; color: #111; border-top: 1px solid #e5e7eb; margin-top: 0.5rem; padding-top: 0.75rem; }
+        .pay-row.vnd { font-size: 0.8rem; color: #f39c12; font-weight: 700; }
+        .qr-wrapper { text-align: center; }
+        .qr-wrapper img { width: 220px; height: 220px; border-radius: 1rem; border: 1px solid #e5e7eb; margin: 0 auto; display: block; }
+        .bank-info { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; margin-top: 1rem; }
+        .bank-info .bank-name { font-weight: 800; color: #005a2b; font-size: 1rem; }
+        .bank-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.875rem; }
+        .bank-row .label { color: #6b7280; }
+        .bank-row .value { font-weight: 700; color: #111; }
+        .copy-btn { background: none; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.15rem 0.5rem; font-size: 0.75rem; color: #6b7280; cursor: pointer; transition: all 0.2s; margin-left: 0.5rem; }
+        .copy-btn:hover { background: #f3f4f6; color: #111; }
+        .amount-badge { display: inline-block; background: #fff7e6; color: #d97706; border: 1px solid #fcd34d; border-radius: 0.5rem; font-size: 1.5rem; font-weight: 900; padding: 0.5rem 1.25rem; margin: 0.75rem 0; letter-spacing: 0.01em; }
+        .transfer-note { font-size: 0.78rem; color: #6b7280; margin-top: 0.75rem; line-height: 1.5; }
+        .modal-footer { padding: 1rem 1.5rem; display: flex; gap: 0.75rem; }
+        .btn-done { flex: 1; background: #f39c12; color: #fff; font-weight: 800; border: none; border-radius: 0.75rem; padding: 0.85rem; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-done:hover { background: #e8910c; }
+        .btn-cancel { background: #f3f4f6; color: #374151; font-weight: 700; border: none; border-radius: 0.75rem; padding: 0.85rem 1.25rem; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-cancel:hover { background: #e5e7eb; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <header class="header">
+    <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-12">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
+                <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
+            </a>
+            <nav class="flex gap-7">
+                <a href="products.html" class="nav-link">Shop</a>
+                <a href="about.html" class="nav-link">Discover</a>
+                <a href="help.html" class="nav-link">Help</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="search-bar">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0" placeholder="Search...">
+            </div>
+            <div class="flex gap-2">
+                <a href="wishlist.html">
+                    <button class="btn-icon">♡</button>
+                </a>
+                <a href="cart.html" class="relative">
+                    <button class="btn-icon">🛒</button>
+                    <span id="cartCount" class="badge">0</span>
+                </a>
+                <a href="login.html" id="accountLink">
+                    <button id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    </header>
+
+
+<!-- CART PAGE -->
+
+<section class="cart-page">
+
+<h1>My Bag (0)</h1>
+
+<div class="cart-layout">
+
+<!-- LEFT SIDE -->
+
+<div class="cart-items"></div>
+
+
+
+
+<!-- RIGHT SIDE -->
+
+<div class="order-summary">
+
+<h3>Order Summary</h3>
+
+<div class="summary-row">
+<span class="subtotal-items">Subtotal (0 items)</span>
+<span class="subtotal-price">$0</span>
+</div>
+
+<div class="summary-row">
+<span>Estimated Shipping</span>
+<span class="shipping">FREE</span>
+</div>
+
+<div class="summary-row">
+<span>Estimated Tax</span>
+<span class="tax">$0</span>
+</div>
+
+<hr>
+
+<div class="summary-row total">
+<span>Total</span>
+<span class="total-price">$0</span>
+</div>
+
+<button class="checkout" onclick="openPaymentModal()">Checkout Securely</button>
+
+<button class="paypal">Pay with PayPal</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- RECOMMENDED -->
+
+<section class="recommended">
+
+<h2>Recommended For You</h2>
+
+<div id="recommendedProducts" class="product-grid">
+
+<!-- Products will be loaded dynamically -->
+
+</div>
+
+</section>
+
+
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" class="modal-backdrop hidden" onclick="handleBackdropClick(event)">
+  <div class="modal-card" id="paymentModalCard">
+
+    <div class="modal-header">
+      <h2>🔒 Secure Payment</h2>
+      <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+
+    <!-- Order Items -->
+    <div class="modal-section">
+      <h3>Order Items</h3>
+      <div id="payModalItems"></div>
+    </div>
+
+    <!-- Price Breakdown -->
+    <div class="modal-section">
+      <h3>Price Breakdown</h3>
+      <div class="pay-row"><span>Subtotal</span><span id="paySubtotal">$0.00</span></div>
+      <div class="pay-row"><span>Estimated Shipping</span><span id="payShipping">FREE</span></div>
+      <div class="pay-row"><span>Estimated Tax (8%)</span><span id="payTax">$0.00</span></div>
+      <div class="pay-row total"><span>Total (USD)</span><span id="payTotal">$0.00</span></div>
+      <div class="pay-row vnd"><span>Amount to transfer (VND)</span><span id="payVND">0 ₫</span></div>
+    </div>
+
+    <!-- QR Code -->
+    <div class="modal-section">
+      <h3>Scan QR to Pay</h3>
+      <div class="qr-wrapper">
+        <img id="payQRCode" src="" alt="VietQR Payment Code" onerror="this.src='https://placehold.co/220x220?text=QR+Loading'">
+        <div class="amount-badge" id="payAmountBadge">0 ₫</div>
+      </div>
+
+      <div class="bank-info">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+          <span style="background:#005a2b;color:#fff;font-weight:800;font-size:0.8rem;padding:2px 8px;border-radius:4px;">BIDV</span>
+          <span class="bank-name">Vietnam Bank for Investment and Development</span>
+        </div>
+        <div class="bank-row">
+          <span class="label">Account Number</span>
+          <span class="value">2601601784 <button class="copy-btn" onclick="copyText('2601601784',this)">Copy</button></span>
+        </div>
+        <div class="bank-row">
+          <span class="label">Account Name</span>
+          <span class="value">NGUYEN QUANG BAO</span>
+        </div>
+        <div class="bank-row">
+          <span class="label">Amount</span>
+          <span class="value" id="payBankAmount" style="color:#d97706;">0 ₫</span>
+        </div>
+        <div class="bank-row">
+          <span class="label">Reference</span>
+          <span class="value" id="payReference">PLAYARENA</span>
+        </div>
+      </div>
+
+      <p class="transfer-note">
+        ① Open your banking app &nbsp;② Scan the QR code above &nbsp;③ Verify the amount and confirm transfer.<br>
+        Orders are processed after payment is confirmed. Please keep your transfer receipt.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePaymentModal()">Back to Cart</button>
+      <button class="btn-done" onclick="confirmPayment()">I've Transferred ✓</button>
+    </div>
+
+  </div>
+</div>
+
+<footer class="bg-[#0d1425] text-[#a0a7b5] py-16 px-[10%]">
+        <div class="flex flex-wrap justify-between gap-10 pb-12">
+            <div class="flex-1 min-w-[250px]">
+                <div class="bg-orange-400 w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl mb-6">★</div>
+                <p class="text-sm leading-relaxed">Inspiring the builders of tomorrow since 1995. Explore our universe of creative building sets.</p>
+            </div>
+            <div class="flex gap-12 flex-wrap">
+                <div>
+                    <h4 class="text-white uppercase text-xs font-bold mb-6">Support</h4>
+                    <ul class="text-sm space-y-3"><li><a href="#" class="hover:text-white">Contact Us</a></li><li><a href="#" class="hover:text-white">Shipping</a></li></ul>
+                </div>
+                <div>
+                    <h4 class="text-white uppercase text-xs font-bold mb-6">Account</h4>
+                    <ul class="text-sm space-y-3"><li><a href="#" class="hover:text-white">Wishlist</a></li><li><a href="#" class="hover:text-white">Track Order</a></li></ul>
+                </div>
+            </div>
+            <div class="flex-1 min-w-[280px]">
+                <h4 class="text-white uppercase text-xs font-bold mb-6">Newsletter</h4>
+                <div class="flex gap-2">
+                    <input type="email" placeholder="Your email" class="bg-[#1a233a] border-none rounded-md p-3 flex-grow text-sm text-white focus:ring-1 focus:ring-orange-400">
+                    <button class="bg-orange-400 text-white px-5 py-2 rounded-md font-bold text-sm">Join</button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 flex flex-wrap justify-between text-[11px]">
+            <p>© 2026 BrickWorld Systems A/S. All rights reserved.</p>
+            <div class="flex gap-6"><a href="#" class="hover:text-white">Privacy Policy</a><a href="#" class="hover:text-white">Terms</a></div>
+        </div>
+    </footer>
+
+    <script src="cart-system.js"></script>
+    <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const container = document.querySelector(".cart-items");
+    const totalPrice = document.querySelector(".total-price");
+    const subtotalPrice = document.querySelector(".subtotal-price");
+    const subtotalItems = document.querySelector(".subtotal-items");
+    const cartTitle = document.querySelector(".cart-page h1");
+    const cartBadge = document.getElementById("cartCount");
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem("token");
+        const accountLink = document.getElementById("accountLink");
+        const accountIcon = document.getElementById("accountIcon");
+
+        if (token) {
+            accountLink.href = "profile.html"; 
+            accountIcon.classList.remove("bg-gray-600");
+            accountIcon.classList.add("bg-legoYellow");
+        }
+        updateCartBadge();
+        renderCart();
+        updateCartCount();
+    });
+
+    /* RENDER CART */
+    function renderCart() {
+        const cartItemsContainer = document.querySelector(".cart-items");
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        
+        if(cart.length === 0) {
+            cartItemsContainer.innerHTML = "<p>Your cart is empty</p>";
+            return;
+        }
+
+        cartItemsContainer.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <img src="${item.img || 'images/default.jpg'}" width="80">
+                <div>
+                    <h4>${item.name}</h4>
+                    <p>$${item.price}</p>
+                </div>
+                <button onclick="removeItem(${item.id})">Remove</button>
+            </div>
+        `).join('');
+        updateTotal();
+    }
+
+    /* CHANGE QTY */
+    function changeQty(id, delta) {
+        const item = cart.find(p=>p.id===id);
+        if(!item) return;
+        item.qty += delta;
+        if(item.qty <= 0) {
+            cart = cart.filter(p=>p.id!==id);
+        }
+        saveCart();
+        renderCart();
+    }
+
+    /* REMOVE ITEM */
+    function removeItem(id) {
+        cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        cart = cart.filter(p => String(p.id) !== String(id));
+        saveCart();
+        renderCart();
+        updateCartCount();
+    }
+
+    /* SAVE */
+    function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    const TAX_RATE = 0.08;
+    const SHIPPING_THRESHOLD = 100;
+    const SHIPPING_COST = 10;
+
+    function updateTotal() {
+        let subtotal = 0;
+        let count = 0;
+
+        cart.forEach(p => {
+            subtotal += p.price * p.qty;
+            count += p.qty;
+        });
+
+        let tax = subtotal * TAX_RATE;
+        let shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+        let total = subtotal + tax + shipping;
+
+        /* UPDATE UI */
+        subtotalPrice.innerText = "$" + subtotal.toFixed(2);
+        subtotalItems.innerText = "Subtotal (" + count + " items)";
+
+        document.querySelector(".tax").innerText = "$" + tax.toFixed(2);
+        document.querySelector(".shipping").innerText = shipping === 0 ? "FREE" : "$" + shipping;
+        totalPrice.innerText = "$" + total.toFixed(2);
+        cartTitle.innerText = "My Bag (" + count + ")";
+    }
+
+    /* CART BADGE */
+    function updateCartCount() {
+        const total = cart.reduce((sum, item) => sum + item.qty, 0);
+        if(cartBadge) cartBadge.innerText = total;
+    }
+
+    /* LOAD RECOMMENDED PRODUCTS */
+    async function loadRecommendedProducts() {
+        const API_BASE = window.location.port === '3000' ? 'http://localhost:3000' : '';
+        const recommendedContainer = document.getElementById('recommendedProducts');
+        
+        try {
+            const res = await fetch(API_BASE + '/products');
+            const products = await res.json();
+            
+            if (!res.ok || !Array.isArray(products)) {
+                recommendedContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Unable to load recommended products.</p>';
+                return;
+            }
+            
+            // Display first 3 products as recommended
+            const recommendedProducts = products.slice(0, 3);
+            
+            recommendedContainer.innerHTML = recommendedProducts.map(product => `
+                <div class="product-card">
+                    <img src="${product.image_url || 'https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha'}" alt="${product.name || 'Product'}" style="object-fit: contain; padding: 1rem;">
+                    <h4>${product.name || 'Product'}</h4>
+                    <p>$${Number(product.price).toFixed(2)}</p>
+                    <button onclick="addRecommendedToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image_url || 'https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha'}')">Add to Bag</button>
+                </div>
+            `).join('');
+        } catch (e) {
+            recommendedContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Unable to load recommended products.</p>';
+        }
+    }
+
+    /* ADD RECOMMENDED PRODUCT TO CART */
+    function addRecommendedToCart(id, name, price, img) {
+        const productForCart = {
+            id: String(id),
+            name: name,
+            price: Number(price),
+            img: img,
+            qty: 1,
+        };
+        
+        // Check if product already exists in cart
+        const existingItem = cart.find(item => String(item.id) === String(id));
+        if (existingItem) {
+            existingItem.qty += 1;
+        } else {
+            cart.push(productForCart);
+        }
+        
+        saveCart();
+        renderCart();
+        updateCartCount();
+    }
+
+    // Load recommended products on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecommendedProducts();
+    });
+    </script>
+
+    <script>
+    /* ── PAYMENT MODAL ── */
+    const VND_RATE = 25000; // 1 USD = 25,000 VND
+
+    function openPaymentModal() {
+        const rawCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        if (rawCart.length === 0) {
+            alert("Your cart is empty. Please add items before checking out.");
+            return;
+        }
+
+        /* ── Recalculate totals ── */
+        let subtotal = 0, count = 0;
+        rawCart.forEach(function(p) {
+            subtotal += Number(p.price) * Number(p.qty || 1);
+            count    += Number(p.qty || 1);
+        });
+        const tax      = subtotal * 0.08;
+        const shipping = subtotal > 100 ? 0 : 10;
+        const total    = subtotal + tax + shipping;
+        const totalVND = Math.round(total * VND_RATE);
+        const ref      = "PLAYARENA" + Date.now().toString().slice(-6);
+
+        /* ── Populate items list ── */
+        document.getElementById("payModalItems").innerHTML = rawCart.map(function(item) {
+            return '<div class="pay-item">' +
+                '<img src="' + (item.img || '') + '" alt="' + (item.name || '') + '" onerror="this.style.display=\'none\'">' +
+                '<div class="pay-item-info">' +
+                    '<div class="name">' + (item.name || 'Product') + '</div>' +
+                    '<div class="qty">Qty: ' + (item.qty || 1) + '  ×  $' + Number(item.price).toFixed(2) + '</div>' +
+                '</div>' +
+                '<div class="pay-item-price">$' + (Number(item.price) * Number(item.qty || 1)).toFixed(2) + '</div>' +
+            '</div>';
+        }).join('');
+
+        /* ── Populate price rows ── */
+        document.getElementById("paySubtotal").textContent = "$" + subtotal.toFixed(2);
+        document.getElementById("payShipping").textContent = shipping === 0 ? "FREE" : "$" + shipping.toFixed(2);
+        document.getElementById("payTax").textContent      = "$" + tax.toFixed(2);
+        document.getElementById("payTotal").textContent    = "$" + total.toFixed(2);
+        document.getElementById("payVND").textContent      = totalVND.toLocaleString("en-US") + " ₫";
+        document.getElementById("payAmountBadge").textContent  = totalVND.toLocaleString("en-US") + " ₫";
+        document.getElementById("payBankAmount").textContent   = totalVND.toLocaleString("en-US") + " ₫";
+        document.getElementById("payReference").textContent    = ref;
+
+        /* ── Generate VietQR URL ── */
+        const qrUrl = "https://img.vietqr.io/image/BIDV-2601601784-compact2.png" +
+            "?amount=" + totalVND +
+            "&addInfo=" + encodeURIComponent(ref) +
+            "&accountName=" + encodeURIComponent("NGUYEN QUANG BAO");
+        document.getElementById("payQRCode").src = qrUrl;
+
+        /* ── Show modal ── */
+        document.getElementById("paymentModal").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closePaymentModal() {
+        document.getElementById("paymentModal").classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    function handleBackdropClick(e) {
+        if (e.target === document.getElementById("paymentModal")) {
+            closePaymentModal();
+        }
+    }
+
+    function confirmPayment() {
+        alert("Thank you! Your payment is being verified.\nWe will process your order shortly.");
+        closePaymentModal();
+    }
+
+    function copyText(text, btn) {
+        navigator.clipboard.writeText(text).then(function() {
+            var orig = btn.textContent;
+            btn.textContent = "Copied!";
+            btn.style.color = "#16a34a";
+            setTimeout(function() { btn.textContent = orig; btn.style.color = ""; }, 1800);
+        });
+    }
+
+    /* Close on Escape key */
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closePaymentModal();
+    });
+    </script>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Product Detail</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+<a href="index.html" class="logo">PLAYARENA</a>
+
+
+<div class="search">
+<input type="text" placeholder="Search sets, themes, and more">
+</div>
+
+<div class="icons">
+<a id="accountIcon" href="login.html">👤</a>
+<span>♡</span>
+<a href="cart.html" class="cart-icon">
+🛒
+<span class="cart-count">0</span>
+</a>
+</div>
+
+</header>
+
+
+<!-- PRODUCT DETAIL -->
+
+<section class="product-detail">
+
+<div class="product-images">
+
+<img class="main-image" src="images/f1-main.png">
+
+<div class="thumbs">
+
+<img src="images/f1-1.png">
+<img src="images/f1-2.png">
+<img src="images/f1-3.png">
+<img src="images/f1-4.png">
+
+</div>
+
+</div>
+
+
+<div class="product-info">
+
+<h1>McLaren MCL39 F1</h1>
+
+<p class="rating">⭐⭐⭐⭐☆ 4.8 (26 Reviews)</p>
+
+<div class="product-meta">
+
+<div>
+<span>AGES</span>
+<p>7+</p>
+</div>
+
+<div>
+<span>PIECES</span>
+<p>456</p>
+</div>
+
+<div>
+<span>ITEM</span>
+<p>76911</p>
+</div>
+
+</div>
+
+<h2 class="price">$34.99</h2>
+
+<div class="cart-row">
+
+<div class="qty">
+<button>-</button>
+<span>1</span>
+<button>+</button>
+</div>
+
+<button class="btn">ADD TO CART</button>
+
+</div>
+
+<button class="wishlist">♡ ADD TO WISHLIST</button>
+
+</div>
+
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="features">
+
+<div class="feature hero-feature">
+<div class="feature-text">
+<h2>The 2025 FIA Formula 1® Constructors' Championship winning car</h2>
+</div>
+</div>
+
+<div class="feature feature-row">
+
+<div class="feature-img f1-img1"></div>
+
+<div class="feature-text">
+<h2>Take your victory lap</h2>
+<p>Proudly display the authentic model in pole position.</p>
+</div>
+
+</div>
+
+
+<div class="feature feature-row reverse">
+
+<div class="feature-img f1-img2"></div>
+
+<div class="feature-text">
+<h2>Savor the winning moment</h2>
+<p>Explore the car's realistic details.</p>
+</div>
+
+</div>
+
+
+<div class="feature feature-row">
+
+<div class="feature-img f1-img3"></div>
+
+<div class="feature-text">
+<h2>Experience Formula 1 engineering</h2>
+<p>Perfect for display or racing fans.</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- RELATED PRODUCTS -->
+
+<section class="related">
+
+<h2>You May Also Like</h2>
+
+<div class="related-grid">
+
+<div class="product-card">
+<img src="images/dune.jpg">
+<h4>Desert Dune Racer</h4>
+<p>$29.99</p>
+<button>Buy Now</button>
+</div>
+
+<div class="product-card">
+<img src="images/bluecar.jpg">
+<h4>Blue Interceptor</h4>
+<p>$39.99</p>
+<button>Buy Now</button>
+</div>
+
+<div class="product-card">
+<img src="images/truck.jpg">
+<h4>Monster Truck</h4>
+<p>$49.99</p>
+<button>Buy Now</button>
+</div>
+
+<div class="product-card">
+<img src="images/gokart.jpg">
+<h4>Super Mini Go-Kart</h4>
+<p>$14.99</p>
+<button>Buy Now</button>
+</div>
+
+</div>
+
+</section>
+
+
+<footer class="footer">
+<p>© PLAYARENA</p>
+</footer>
+
+<script src="cart-system.js"></script>
+
+<script>
+
+const token = localStorage.getItem("token")
+
+if(token){
+
+const icon=document.getElementById("accountIcon")
+
+if(icon){
+
+icon.href="profile.html"
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

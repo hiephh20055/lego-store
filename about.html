@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLAYARENA | About Us</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            legoYellow: '#ffcf00',
+            legoRed: '#d11013',
+            legoOrange: '#fd8024',
+            legoNavy: '#20214b',
+            legoGrey: '#f8f8f8',
+          },
+          fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+        .brand-heading { font-weight: 900; text-transform: uppercase; font-style: italic; }
+        .hover-scale { transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .group:hover .hover-scale { transform: scale(1.1); }
+        .active-press:active { transform: scale(0.96); filter: brightness(0.9); }
+        .wishlist-btn.is-active svg { fill: #ef4444; stroke: #ef4444; }
+        
+        /* Navbar Custom Styles */
+        .header { background-color: #ffffff; height: 70px; display: flex; align-items: center; padding: 0 40px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; }
+        .nav-link { text-decoration: none; color: #4b5563; font-weight: 600; font-size: 15px; position: relative; padding: 8px 0; transition: color 0.3s; }
+        .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #1a1a1a; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .search-bar { position: relative; background-color: #f3f4f6; border-radius: 8px; padding: 8px 12px 8px 36px; width: 280px; transition: all 0.3s; }
+        .search-bar:focus-within { background-color: #fff; border-color: #d1d5db; width: 320px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #4b5563; transition: all 0.2s; }
+        .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
+        .badge { position: absolute; top: 4px; right: 4px; background-color: #f39c12; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid white; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <header class="header">
+    <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-12">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
+          <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
+        </a>
+        <nav class="flex gap-7">
+          <a href="products.html" class="nav-link">Shop</a>
+          <a href="about.html" class="nav-link">Discover</a>
+          <a href="help.html" class="nav-link">Help</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-5">
+        <div class="search-bar">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <input type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0" placeholder="Search..." />
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-icon">♡</button>
+          <a href="cart.html" class="relative">
+            <button class="btn-icon">🛒</button>
+            <span id="cartCount" class="badge">0</span>
+          </a>
+          <a href="login.html" id="accountLink">
+            <button id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-12">
+    <section class="mb-12">
+      <p class="text-xs font-semibold tracking-[0.2em] text-gray-500 mb-3 uppercase">ABOUT US</p>
+      <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight">
+        Building a playground<br />for every kind of imagination.
+      </h1>
+      <p class="text-gray-600 max-w-2xl">
+        PLAYARENA is a high-fidelity LEGO®-inspired experience where collectors, families, and dreamers
+        can discover brick sets curated for every age, fandom, and building style.
+      </p>
+    </section>
+
+    <section class="grid md:grid-cols-3 gap-8 mb-12">
+      <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <h2 class="text-xl font-bold mb-3">Our story</h2>
+        <p class="text-sm text-gray-600 mb-3">
+          We started as a tiny fan project in 2015, collecting and photographing our favorite sets from classic
+          city scenes to sci‑fi starships. Over time, PLAYARENA grew into a digital showroom that celebrates
+          creativity, detail, and playful design.
+        </p>
+        <p class="text-sm text-gray-600">
+          Today, our mission is simple: make it feel magical to browse and build again — whether you are buying
+          your first starter kit or hunting for your next display piece.
+        </p>
+      </div>
+      <div class="bg-[#0d1425] text-[#a0a7b5] rounded-2xl p-6 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white mb-3 uppercase">In numbers</h3>
+          <ul class="space-y-3 text-sm">
+            <li><span class="text-white font-bold">1,200+</span> curated sets</li>
+            <li><span class="text-white font-bold">40+</span> themes & universes</li>
+            <li><span class="text-white font-bold">24/7</span> browsing experience</li>
+          </ul>
+        </div>
+        <p class="mt-6 text-[11px] text-gray-400">
+          PLAYARENA is a fan-made concept experience and is not affiliated with the LEGO Group.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid md:grid-cols-3 gap-8 mb-12">
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 class="text-sm font-bold mb-2 uppercase text-gray-500">For Collectors</h3>
+        <p class="text-sm text-gray-600">
+          High-resolution visuals, set details, and price clarity so you can plan your next centerpiece build.
+        </p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 class="text-sm font-bold mb-2 uppercase text-gray-500">For Families</h3>
+        <p class="text-sm text-gray-600">
+          Age, piece count, and difficulty highlights help you quickly find builds that are fun for everyone.
+        </p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 class="text-sm font-bold mb-2 uppercase text-gray-500">For Dreamers</h3>
+        <p class="text-sm text-gray-600">
+          Curated themes and inspirations to spark new ideas, from tiny dioramas to massive display worlds.
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-bold mb-1">Join the PLAYARENA community</h2>
+        <p class="text-sm text-gray-600">
+          Be the first to see new mockups, layouts, and experimental features as we expand the experience.
+        </p>
+      </div>
+      <a href="products.html" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#f39c12] text-white text-sm font-bold shadow-sm hover:brightness-110 transition">
+        Start browsing sets
+      </a>
+    </section>
+  </main>
+
+  <footer class="bg-[#0d1425] text-[#a0a7b5] py-16 px-[10%]">
+        <div class="flex flex-wrap justify-between gap-10 pb-12">
+            <div class="flex-1 min-w-[250px]">
+                <div class="bg-orange-400 w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl mb-6">★</div>
+                <p class="text-sm leading-relaxed">Inspiring the builders of tomorrow since 1995. Explore our universe of creative building sets.</p>
+            </div>
+            <div class="flex gap-12 flex-wrap">
+                <div>
+                    <h4 class="text-white uppercase text-xs font-bold mb-6">Support</h4>
+                    <ul class="text-sm space-y-3"><li><a href="#" class="hover:text-white">Contact Us</a></li><li><a href="#" class="hover:text-white">Shipping</a></li></ul>
+                </div>
+                <div>
+                    <h4 class="text-white uppercase text-xs font-bold mb-6">Account</h4>
+                    <ul class="text-sm space-y-3"><li><a href="#" class="hover:text-white">Wishlist</a></li><li><a href="#" class="hover:text-white">Track Order</a></li></ul>
+                </div>
+            </div>
+            <div class="flex-1 min-w-[280px]">
+                <h4 class="text-white uppercase text-xs font-bold mb-6">Newsletter</h4>
+                <div class="flex gap-2">
+                    <input type="email" placeholder="Your email" class="bg-[#1a233a] border-none rounded-md p-3 flex-grow text-sm text-white focus:ring-1 focus:ring-orange-400">
+                    <button class="bg-orange-400 text-white px-5 py-2 rounded-md font-bold text-sm">Join</button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 flex flex-wrap justify-between text-[11px]">
+            <p>© 2026 BrickWorld Systems A/S. All rights reserved.</p>
+            <div class="flex gap-6"><a href="#" class="hover:text-white">Privacy Policy</a><a href="#" class="hover:text-white">Terms</a></div>
+        </div>
+    </footer>
+
+  <script src="cart-system.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const token = localStorage.getItem("token");
+      const accountLink = document.getElementById("accountLink");
+      const accountIcon = document.getElementById("accountIcon");
+
+      if (token) {
+        accountLink.href = "profile.html";
+        accountIcon.classList.remove("bg-gray-600");
+        accountIcon.classList.add("bg-legoYellow");
+      }
+
+      if (typeof updateCartBadge === "function") {
+        updateCartBadge();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+  <title>PLAYARENA | Shop</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script id="tailwind-config">
+
+    tailwind.config = {
+
+      darkMode: "class",
+
+      theme: {
+
+        extend: {
+
+          colors: {
+
+            primary: "#f49d25",
+
+            "background-light": "#f8f7f5",
+
+            "background-dark": "#221a10",
+
+          },
+
+          fontFamily: {
+
+            display: ["Spline Sans"],
+
+          },
+
+        },
+
+      },
+
+    }
+
+  </script>
+
+  <style>
+
+    body { font-family: 'Spline Sans', sans-serif; }
+
+    .product-card:hover .product-image { transform: scale(1.05); }
+    .product-card:hover .wishlist-icon { color: #ef4444; transform: scale(1.2); }
+    .product-card:hover .wishlist-toggle { background-color: #ef4444; color: white; }
+    .wishlist-toggle:hover { background-color: #dc2626; }
+    .wishlist-toggle:active { transform: scale(0.95); }
+    .product-image { object-fit: contain; max-width: 100%; max-height: 100%; padding: 1rem; }
+    .aspect-square { display: flex; align-items: center; justify-content: center; }
+
+    .header {
+
+      background-color: #ffffff;
+
+      height: 70px;
+
+      display: flex;
+
+      align-items: center;
+
+      padding: 0 40px;
+
+      border-bottom: 1px solid #e5e7eb;
+
+      position: sticky;
+
+      top: 0;
+
+      z-index: 1000;
+
+    }
+
+    .nav-link {
+
+      text-decoration: none;
+
+      color: #4b5563;
+
+      font-weight: 600;
+
+      font-size: 15px;
+
+      position: relative;
+
+      padding: 8px 0;
+
+      transition: color 0.3s;
+
+    }
+
+    .nav-link::after {
+
+      content: '';
+
+      position: absolute;
+
+      bottom: 0;
+
+      left: 0;
+
+      width: 0;
+
+      height: 2px;
+
+      background-color: #1a1a1a;
+
+      transition: width 0.3s ease;
+
+    }
+
+    .nav-link:hover::after { width: 100%; }
+
+    .btn-icon {
+
+      width: 40px;
+
+      height: 40px;
+
+      border-radius: 50%;
+
+      border: none;
+
+      background: none;
+
+      cursor: pointer;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 20px;
+
+      color: #4b5563;
+
+      transition: all 0.2s;
+
+    }
+
+    .btn-icon:hover { background-color: #f3f4f6; color: #1a1a1a; }
+
+    .badge {
+
+      position: absolute;
+
+      top: 4px;
+
+      right: 4px;
+
+      background-color: #f39c12;
+
+      color: white;
+
+      font-size: 10px;
+
+      font-weight: bold;
+
+      padding: 2px 5px;
+
+      border-radius: 10px;
+
+      border: 2px solid white;
+
+    }
+
+  </style>
+
+</head>
+
+<body class="bg-background-light text-slate-900">
+
+  <header class="header">
+
+    <div class="max-w-[1440px] w-full mx-auto flex justify-between items-center">
+
+      <div class="flex items-center gap-12">
+
+        <a href="index.html" class="flex items-center gap-2">
+
+          <div class="w-8 h-8 bg-[#f39c12] rounded-md flex items-center justify-center text-white font-bold text-lg">B</div>
+
+          <span class="text-xl font-extrabold tracking-tight">PLAYARENA</span>
+
+        </a>
+
+        <nav class="flex gap-7">
+
+          <a href="products.html" class="nav-link">Shop</a>
+
+          <a href="about.html" class="nav-link">Discover</a>
+
+          <a href="help.html" class="nav-link">Help</a>
+
+        </nav>
+
+      </div>
+
+      <div class="flex items-center gap-5">
+
+        <div class="relative search-bar">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+          <input id="searchInput" type="text" class="bg-transparent border-none outline-none text-sm w-full focus:ring-0 pl-10 pr-4 py-2 rounded-lg transition-all duration-200" placeholder="Search for sets, themes..." />
+        </div>
+
+        <div class="flex gap-2">
+
+          <a href="wishlist.html" class="btn-icon" title="Saved wishlist">♡</a>
+
+          <a href="cart.html" class="relative">
+
+            <button class="btn-icon">🛒</button>
+
+            <span class="badge cart-count">0</span>
+
+          </a>
+
+          <a href="login.html" id="accountLink">
+
+            <button id="accountIcon" class="btn-icon bg-gray-600 !text-white">👤</button>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+
+  <main class="max-w-[1440px] mx-auto px-4 md:px-10 py-8">
+
+    <div class="mb-8">
+
+      <nav class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-2 tracking-widest">
+
+        <a class="hover:text-primary transition-colors" href="index.html">Home</a>
+
+        <span class="text-slate-300">›</span>
+
+        <span class="text-slate-600 font-semibold">Shop</span>
+
+      </nav>
+
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+
+        <div>
+
+          <h2 class="text-4xl font-black text-slate-900 mb-2">SHOP</h2>
+
+          <p class="text-slate-500">Browse all building sets available in our store.</p>
+
+        </div>
+
+        <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-4 py-2 self-start md:self-auto">
+
+          <span class="text-sm font-semibold text-slate-500">Sort by:</span>
+
+          <select id="sortSelect" class="bg-transparent border-none focus:ring-0 text-sm font-bold p-0 pr-8 cursor-pointer">
+
+            <option value="">Most Popular</option>
+
+            <option value="low">Price: Low to High</option>
+
+            <option value="high">Price: High to Low</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <!-- Simple sidebar (static for now) -->
+
+      <aside class="w-full lg:w-64 flex-shrink-0 space-y-6">
+
+        <div class="bg-primary/5 p-4 rounded-xl border border-primary/20 flex items-center justify-between">
+
+          <span class="text-sm font-bold text-slate-700">Show In Stock Only</span>
+
+          <button class="w-10 h-5 bg-primary rounded-full relative opacity-50 cursor-not-allowed">
+
+            <span class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></span>
+
+          </button>
+
+        </div>
+
+        <p class="text-xs text-slate-500">
+
+          Filters are for UI only at the moment; all products are loaded from the backend.
+
+        </p>
+
+      </aside>
+
+
+
+      <div class="flex-1">
+
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
+
+          <!-- cards rendered by JS -->
+
+        </div>
+
+
+
+        <p id="productsEmpty" class="text-center text-sm text-slate-500 mt-8 hidden">
+
+          No products available.
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+
+  <script src="wishlist.js"></script>
+
+  <script src="cart-system.js"></script>
+
+  <script>
+
+  /* Same origin when opened via http://localhost:3000/... — avoids fetch/CORS errors */
+
+  const API_BASE =
+
+    window.location.port === "3000" && window.location.protocol === "http:"
+
+      ? ""
+
+      : "http://localhost:3000";
+
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const token = localStorage.getItem("token");
+
+    const accountLink = document.getElementById("accountLink");
+
+    const accountIcon = document.getElementById("accountIcon");
+
+
+
+    if (token) {
+
+      accountLink.href = "profile.html";
+
+      if (accountIcon) {
+
+        accountIcon.classList.remove("bg-gray-600");
+
+        accountIcon.classList.add("bg-primary");
+
+      }
+
+    }
+
+
+
+    loadProducts();
+
+    if (typeof updateCartBadge === "function") {
+
+      updateCartBadge();
+
+    }
+
+
+
+    const sortSelect = document.getElementById("sortSelect");
+
+    sortSelect.addEventListener("change", applySort);
+
+
+
+    const searchInput = document.getElementById("searchInput");
+
+    searchInput.addEventListener("input", applySearch);
+
+  });
+
+
+
+  let productsData = [];
+
+
+
+  async function loadProducts() {
+
+    const grid = document.getElementById("productsGrid");
+
+    const empty = document.getElementById("productsEmpty");
+
+    // Show skeleton loaders
+
+    grid.innerHTML = Array(8).fill(0).map(() => `
+
+      <div class="bg-white rounded-xl border border-slate-100 p-4 animate-pulse">
+
+        <div class="flex items-center space-x-4">
+
+          <div class="w-12 h-12 bg-slate-200 rounded-full animate-pulse"></div>
+
+          <div class="flex-1 space-y-2">
+
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+
+            <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+
+            <div class="h-4 bg-slate-200 rounded"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `).join('');
+
+    // Load actual products
+
+    try {
+
+      const res = await fetch(API_BASE + "/products");
+
+      const data = await res.json();
+
+
+
+      if (!res.ok) {
+
+        grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Failed to load products.</p>";
+
+        return;
+
+      }
+
+
+
+      if (!Array.isArray(data)) {
+
+        grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Invalid product data from server.</p>";
+
+        return;
+
+      }
+
+
+
+      productsData = data;
+
+      renderProducts(productsData);
+
+      empty.classList.toggle("hidden", data.length > 0);
+
+    } catch (e) {
+
+      grid.innerHTML = "<p class='col-span-full text-center text-sm text-red-500'>Unable to connect to server.</p>";
+
+    }
+
+  }
+
+
+
+  function renderProducts(list) {
+
+    const grid = document.getElementById("productsGrid");
+
+    grid.innerHTML = "";
+
+
+
+    list.forEach(function (p) {
+
+      const card = document.createElement("div");
+
+      card.className =
+        "group product-card bg-white rounded-xl overflow-hidden border border-slate-100 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col relative";
+
+
+
+      const imgUrl =
+
+        p.image_url ||
+
+        "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
+
+
+
+      const age = p.age_min || "";
+
+      const pieces = p.pieces || "";
+
+
+
+      card.innerHTML =
+
+        '<div class="relative overflow-hidden aspect-square bg-slate-50">' +
+
+        '  <img class="product-image w-full h-full object-cover transition-transform duration-500" src="' +
+
+        imgUrl +
+
+        '" alt="' +
+
+        (p.name || "Product") +
+
+        '">' +
+
+        "</div>" +
+
+        '<div class="p-5 flex flex-col flex-1">' +
+
+        '  <div class="flex items-center gap-2 mb-2">' +
+
+        (age
+
+          ? '<span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">AGE ' +
+
+            age +
+
+            "+</span>"
+
+          : "") +
+
+        (pieces
+
+          ? '<span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">' +
+
+            pieces +
+
+            " PCS</span>"
+
+          : "") +
+
+        "  </div>" +
+
+        '  <h3 class="font-bold text-slate-900 line-clamp-2 mb-2 group-hover:text-primary transition-colors">' +
+
+        p.name +
+
+        "</h3>" +
+
+        '  <div class="mt-auto">' +
+
+        '    <div class="flex items-center justify-between gap-4 mb-3">' +
+
+        '      <span class="text-xl font-black text-slate-900">$' +
+        Number(p.price).toFixed(2) +
+        "</span>" +
+        "    </div>" +
+        '    <div class="flex gap-2">' +
+        '      <button type="button" data-add-cart class="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-3 rounded-lg flex items-center justify-center text-sm transition-colors" title="Add to Cart">' +
+        '      <span class="material-symbols-outlined text-lg">add</span>' +
+        "      </button>" +
+        '      <button type="button" class="wishlist-toggle bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-3 rounded-lg flex items-center justify-center text-sm transition-colors" data-pid="' +
+        p.id +
+        '" title="Add to Wishlist">' +
+        '      <span class="material-symbols-outlined text-lg wishlist-icon">Wishlist</span>' +
+        "      </button>" +
+        "    </div>" +
+        "  </div>" +
+        "</div>";
+
+
+
+      const addBtn = card.querySelector("[data-add-cart]");
+
+      if (addBtn) {
+
+        addBtn.addEventListener("click", function () {
+
+          const productForCart = {
+
+            id: String(p.id),
+
+            name: p.name,
+
+            price: Number(p.price),
+
+            img: imgUrl,
+
+            qty: 1,
+
+          };
+
+          if (typeof addToCart === "function") {
+
+            addToCart(productForCart);
+
+          }
+
+        });
+
+      }
+
+
+
+      const wishBtn = card.querySelector(".wishlist-toggle");
+
+      const wishIcon = wishBtn.querySelector(".wishlist-icon");
+
+      function syncWishlistUi() {
+
+        const on = typeof isWishlisted === "function" && isWishlisted(p.id);
+
+        wishIcon.textContent = on ? "Wishlist" : "Wishlist";
+
+        wishBtn.classList.toggle("text-red-500", on);
+
+        wishBtn.classList.toggle("text-slate-400", !on);
+
+      }
+
+      syncWishlistUi();
+
+      wishBtn.addEventListener("click", function (e) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        toggleWishlist({
+
+          id: p.id,
+
+          name: p.name,
+
+          price: p.price,
+
+          img: imgUrl,
+
+        });
+
+        syncWishlistUi();
+
+      });
+
+      // Add click event to product card for quick view (excluding buttons)
+      card.addEventListener("click", function(e) {
+        // Check if click is on buttons (prevent modal from opening when clicking buttons)
+        if (e.target.closest('[data-add-cart]') || e.target.closest('.wishlist-toggle')) {
+          return;
+        }
+        
+        // Show quick view modal
+        showQuickView(p);
+      });
+
+      grid.appendChild(card);
+
+    });
+
+  }
+
+
+
+  function applySort() {
+
+    const sortSelect = document.getElementById("sortSelect");
+
+    let sorted = [...productsData];
+
+
+
+    if (sortSelect.value === "low") {
+
+      sorted.sort((a, b) => a.price - b.price);
+
+    } else if (sortSelect.value === "high") {
+
+      sorted.sort((a, b) => b.price - a.price);
+
+    }
+
+
+
+    const search = document.getElementById("searchInput").value.toLowerCase();
+
+    if (search) {
+
+      sorted = sorted.filter((p) =>
+
+        String(p.name || "").toLowerCase().includes(search)
+
+      );
+
+    }
+
+
+
+    renderProducts(sorted);
+
+  }
+
+
+
+  function applySearch() {
+
+    applySort();
+
+  }
+
+  // Modal functionality
+  function showQuickView(product) {
+    const modal = document.getElementById("quickViewModal");
+    const modalImage = document.getElementById("modalProductImage");
+    const modalName = document.getElementById("modalProductName");
+    const modalAge = document.getElementById("modalProductAge");
+    const modalPieces = document.getElementById("modalProductPieces");
+    const modalPrice = document.getElementById("modalProductPrice");
+    const modalDescription = document.getElementById("modalProductDescription");
+    
+    // Set product data
+    modalImage.src = product.image_url || "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha";
+    modalImage.alt = product.name || "Product";
+    modalName.textContent = product.name || "Product";
+    modalAge.textContent = product.age_min ? `AGE ${product.age_min}+` : "";
+    modalPieces.textContent = product.pieces ? `${product.pieces} PCS` : "";
+    modalPrice.textContent = Number(product.price).toFixed(2);
+    modalDescription.textContent = "High-quality LEGO® building set with detailed instructions and premium parts.";
+    
+    // Show modal
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    
+    // Setup modal buttons
+    setupModalButtons(product);
+  }
+  
+  function setupModalButtons(product) {
+    const addToCartBtn = document.getElementById("modalAddToCart");
+    const addToWishlistBtn = document.getElementById("modalAddToWishlist");
+    
+    if (addToCartBtn) {
+      addToCartBtn.onclick = function() {
+        const productForCart = {
+          id: String(product.id),
+          name: product.name,
+          price: Number(product.price),
+          img: product.image_url || "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha",
+          qty: 1,
+        };
+        if (typeof addToCart === "function") {
+          addToCart(productForCart);
+        }
+        closeModal();
+      };
+    }
+    
+    if (addToWishlistBtn) {
+      addToWishlistBtn.onclick = function() {
+        toggleWishlist({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          img: product.image_url || "https://images.lego.com/is/image/LEGO/ldd_product?$main$&layers=0&fmt=png-alpha",
+        });
+        closeModal();
+      };
+    }
+  }
+  
+  function closeModal() {
+    const modal = document.getElementById("quickViewModal");
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+  }
+  
+  // Modal event listeners
+  document.addEventListener("DOMContentLoaded", function() {
+    const closeBtn = document.getElementById("closeModal");
+    const modal = document.getElementById("quickViewModal");
+    
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeModal);
+    }
+    
+    if (modal) {
+      modal.addEventListener("click", function(e) {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+    }
+  });
+
+</script>
+
+<!-- Quick View Modal -->
+<div id="quickViewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="relative">
+      <!-- Close Button -->
+      <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+        ×
+      </button>
+      
+      <!-- Modal Content -->
+      <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Product Image -->
+          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+            <img id="modalProductImage" src="" alt="" class="w-full h-full object-contain p-4">
+          </div>
+          
+          <!-- Product Details -->
+          <div class="flex flex-col justify-between">
+            <div>
+              <h2 id="modalProductName" class="text-2xl font-bold text-gray-900 mb-2"></h2>
+              <p id="modalProductAge" class="text-sm text-gray-600 mb-2"></p>
+              <p id="modalProductPieces" class="text-sm text-gray-600 mb-4"></p>
+              <p id="modalProductDescription" class="text-gray-700 mb-6"></p>
+            </div>
+            
+            <!-- Price and Actions -->
+            <div class="space-y-4">
+              <div class="text-3xl font-bold text-gray-900">
+                $<span id="modalProductPrice">0.00</span>
+              </div>
+              
+              <div class="flex gap-3">
+                <button id="modalAddToCart" class="flex-1 bg-[#f39c12] hover:bg-[#e8910c] text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                  Add to Cart
+                </button>
+                <button id="modalAddToWishlist" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition-colors">
+                  Add to Wishlist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+</html>
